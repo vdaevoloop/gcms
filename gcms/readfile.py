@@ -5,11 +5,14 @@ import sys
 from pathlib import Path
 from icecream import ic
 from scipy import signal
+import seaborn as sns
 
 
 class MS_CSV_Reader:
     def __init__(
-        self, root_data="./../data/csv_graph_files/", file="HT_R81_est_2_out.csv"
+        self,
+        root_data="/Users/duc/Developer/aevoloop/gcms/data/csv_graph_files",
+        file="HT_R81_est_2_out.csv",
     ) -> None:
         self.root_data = Path(root_data)
         self.file = file
@@ -56,10 +59,10 @@ class MS_CSV_Reader:
         print("This is the csv import:")
         print(r.head())
         print(r.shape)
-        print("\nThis is the returned table:")
+        print("\nThis is the returned data frame:")
         print(r[["X(Minutes)", "Y(Counts)"]])
         return r[["X(Minutes)", "Y(Counts)"]].dropna()
 
     def plot_ms(self):
-        self.df.plot(x="X(Minutes)", y="Y(Counts)", kind="line")
+        sns.relplot(data=self.df, x="X(Minutes)", y="Y(Counts)", kind="line")
         return
