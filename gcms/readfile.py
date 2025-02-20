@@ -19,27 +19,46 @@ class MS_CSV_Reader:
         self.file = file
         self.df = self.csv2dataframe()
 
-    def csv2dataframe(self) -> pd.Series | pd.DataFrame:
+    def csv2dataframe(self) -> pd.DataFrame | None:
         """
-        csv file must be of format:
-            #Point,X(Minutes),Y(Counts)
-            0,7.093,11364
-            ...
-            --> important is that the head contains X(Minutes) and Y(Counts)
+        Reads a csv file and returns a DataFrame. Csv must contain the columns 'X(Minutes)' and 'Y(Counts)'.
 
-        return: pd.DataFrame where non number values are removed
+        Columns are renamed to 'minutes' and 'counts'. Rows containing non-numeric values are removed.
+
+        Return:
+            pandas.DataFrame with "minutes", "counts" columns or None if error occurs
         """
         path = self.root_data / self.file
-        r = pd.read_csv(path)
-        logging.info("This is the csv import:")
-        logging.info(r.head())
-        logging.info(r.shape)
-        logging.info("\nThis is the returned data frame:")
-        logging.info(r[["X(Minutes)", "Y(Counts)"]])
-        return r[["X(Minutes)", "Y(Counts)"]].dropna()
+        if not path.exists():
+            logging.error(f"File at '{path}' does not exists.")
+            return None
+        try:
+            df = pd.read_csv(path, usecols=["X(Minutes)", "Y(Counts)"]).rename(
+                columns={"X(Minutes)": "minutes", "Y(Counts)": "counts"}
+            )
+            if not pd.api.types.is_numeric_dtype(df["minutes"]):
+                df["minutes"] = pd.to_numeric(df["minutes"], errors="coerce")
+                logging.warning(
+                    "Column 'minutes' contained non-numeric values, converted to NaN"
+                )
+            if not pd.api.types.is_numeric_dtype(df["counts"]):
+                df["counts"] = pd.to_numeric(df["counts"], errors="coerce")
+                logging.warning(
+                    "Column 'counts' contained non-numeric values, converted to NaN"
+                )
+            df = df.dropna()
+            logging.info("removed all NaN rows from table")
 
-    def plot_ms(self):
-        sns.relplot(data=self.df, x="X(Minutes)", y="Y(Counts)", kind="line")
+            logging.info("File '{path}' converted sucessfully")
+            logging.debug(df.head())
+            logging.debug(df.shape)
+            return df
+        except Exception as e:
+            logging.error(f"Error while reading file '{path}': {e}")
+            return None
+
+    def plot_gc(self):
+        sns.relplot(data=self.df, x="minutes", y="counts", kind="line")
         return
 
 
