@@ -19,46 +19,6 @@ class MS_CSV_Reader:
         self.file = file
         self.df = self.csv2dataframe()
 
-    def replace_second_comma(self):
-        """
-        v1.0
-        Replace the second comma with a point. This comma is meant to be separator between seconts and ms.
-        """
-        # Get all indices from second comma. Skip first two lines
-        p = r","
-        path = self.root_data / self.file
-        i = 0
-        try:
-            with (
-                open(path, "r") as f,
-                open(
-                    self.root_data / re.sub(".csv", "_out.csv", self.file), "w"
-                ) as out,
-            ):
-                for line in f:
-                    if i < 2:
-                        out.write(line)
-                        i += 1
-                        continue
-                    inds = [m.start() for m in re.finditer(p, line.strip())]
-                    if len(inds) < 2:
-                        raise ValueError(f"Line {i} expects at least 2 commas.")
-                    assert len(inds) > 1, f"Only one comma found in line {i}"
-                    out.write(line[: inds[1]] + "." + line[inds[1] + 1 :])
-                    i += 1
-        except FileNotFoundError:
-            logging.error(f"Input file '{path}' not found.")
-        except ValueError as e:
-            logging.error(str(e))
-        except re.error as e:
-            logging.error(f"Regular expression error: {e}")
-        except IOError as e:
-            logging.error(f"I/O error processing path '{path}': {e}")
-        except Exception as e:
-            logging.error(f"Unexpected error occured: {e}")
-        logging.info("Finished sucessfully")
-        return
-
     def csv2dataframe(self) -> pd.Series | pd.DataFrame:
         """
         csv file must be of format:
@@ -81,3 +41,49 @@ class MS_CSV_Reader:
     def plot_ms(self):
         sns.relplot(data=self.df, x="X(Minutes)", y="Y(Counts)", kind="line")
         return
+
+
+def replace_second_comma(
+    root_path="/Users/duc/Developer/aevoloop/gcms/data/csv_graph_files",
+    file="HT_R81_est_2.csv",
+):
+    """
+    v1.0
+    Replace the second comma with a point. This comma is meant to be separator between seconts and ms.
+    """
+    # Get all indices from second comma. Skip first two lines
+    p = r","
+    root_data = Path(root_path)
+    path = root_data / file
+    i = 0
+    try:
+        with (
+            open(path, "r") as f,
+            open(root_data / re.sub(".csv", "_out.csv", file), "w") as out,
+        ):
+            for line in f:
+                if i == 0:
+                    i += 1
+                    continue
+                if i == 1:
+                    out.write(line)
+                    i += 1
+                    continue
+                inds = [m.start() for m in re.finditer(p, line.strip())]
+                if len(inds) < 2:
+                    raise ValueError(f"Line {i} expects at least 2 commas.")
+                assert len(inds) > 1, f"Only one comma found in line {i}"
+                out.write(line[: inds[1]] + "." + line[inds[1] + 1 :])
+                i += 1
+    except FileNotFoundError:
+        logging.error(f"Input file '{path}' not found.")
+    except ValueError as e:
+        logging.error(str(e))
+    except re.error as e:
+        logging.error(f"Regular expression error: {e}")
+    except IOError as e:
+        logging.error(f"I/O error processing path '{path}': {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error occured: {e}")
+    logging.info("Finished sucessfully")
+    return
