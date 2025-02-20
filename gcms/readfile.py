@@ -1,11 +1,12 @@
-import pandas as pd
-import numpy as np
-import re
-import sys
-from pathlib import Path
 from icecream import ic
+import logging
+import numpy as np
+import pandas as pd
+from pathlib import Path
+import re
 from scipy import signal
 import seaborn as sns
+import sys
 
 
 class MS_CSV_Reader:
@@ -27,20 +28,35 @@ class MS_CSV_Reader:
         p = r","
         path = self.root_data / self.file
         i = 0
-        with open(path, "r") as f:
-            with open(
-                self.root_data / re.sub(".csv", "_out.csv", self.file), "w"
-            ) as out:
+        try:
+            with (
+                open(path, "r") as f,
+                open(
+                    self.root_data / re.sub(".csv", "_out.csv", self.file), "w"
+                ) as out,
+            ):
                 for line in f:
                     if i < 2:
                         out.write(line)
                         i += 1
                         continue
                     inds = [m.start() for m in re.finditer(p, line.strip())]
+                    if len(inds) < 2:
+                        raise ValueError(f"Line {i} expects at least 2 commas.")
                     assert len(inds) > 1, f"Only one comma found in line {i}"
                     out.write(line[: inds[1]] + "." + line[inds[1] + 1 :])
                     i += 1
-        print("Finished sucessfully")
+        except FileNotFoundError:
+            logging.error(f"Input file '{path}' not found.")
+        except ValueError as e:
+            logging.error(str(e))
+        except re.error as e:
+            logging.error(f"Regular expression error: {e}")
+        except IOError as e:
+            logging.error(f"I/O error processing path '{path}': {e}")
+        except Exception as e:
+            logging.error(f"Unexpected error occured: {e}")
+        logging.info("Finished sucessfully")
         return
 
     def csv2dataframe(self) -> pd.Series | pd.DataFrame:
@@ -55,11 +71,11 @@ class MS_CSV_Reader:
         """
         path = self.root_data / self.file
         r = pd.read_csv(path)
-        print("This is the csv import:")
-        print(r.head())
-        print(r.shape)
-        print("\nThis is the returned data frame:")
-        print(r[["X(Minutes)", "Y(Counts)"]])
+        logging.info("This is the csv import:")
+        logging.info(r.head())
+        logging.info(r.shape)
+        logging.info("\nThis is the returned data frame:")
+        logging.info(r[["X(Minutes)", "Y(Counts)"]])
         return r[["X(Minutes)", "Y(Counts)"]].dropna()
 
     def plot_ms(self):
