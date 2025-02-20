@@ -23,9 +23,8 @@ class MS_CSV_Reader:
         v1.0
         Replace the second comma with a point. This comma is meant to be separator between seconts and ms.
         """
-
         # Get all indices from second comma. Skip first two lines
-        p = r"(,)"
+        p = r","
         path = self.root_data / self.file
         i = 0
         with open(path, "r") as f:
