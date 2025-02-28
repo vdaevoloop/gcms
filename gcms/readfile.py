@@ -58,6 +58,21 @@ class GC_CSV_Reader:
         sns.relplot(data=self.df, x="minutes", y="counts", kind="line")
         return
 
+    def width(self, start: float, end: float) -> int | None:
+        """Counts how many datapoints are between two time points (retention time)."""
+        if self.df is None:
+            logging.error("Dataframe not initialized, yet.")
+            return None
+        width = self.df["minutes"].between(start, end)
+        return width.sum()
+
+    def find_peak(self) -> pd.Series:
+        """Finds peak in GC data.
+
+        Return a 1D list with values that represent the peaks.
+        """
+        return pd.Series()
+
 
 def replace_second_comma(
     root_path="/Users/duc/Developer/aevoloop/gcms/data/csv_graph_files",
