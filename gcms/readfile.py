@@ -1,6 +1,5 @@
 from icecream import ic
 import logging
-import numpy as np
 import pandas as pd
 from pathlib import Path
 import re
@@ -9,7 +8,7 @@ import seaborn as sns
 import sys
 
 
-class MS_CSV_Reader:
+class GC_CSV_Reader:
     def __init__(
         self,
         root_data="/Users/duc/Developer/aevoloop/gcms/data/csv_graph_files",
@@ -22,9 +21,7 @@ class MS_CSV_Reader:
     def csv2dataframe(self) -> pd.DataFrame | None:
         """
         Reads a csv file and returns a DataFrame. Csv must contain the columns 'X(Minutes)' and 'Y(Counts)'.
-
         Columns are renamed to 'minutes' and 'counts'. Rows containing non-numeric values are removed.
-
         Return:
             pandas.DataFrame with "minutes", "counts" columns or None if error occurs
         """
