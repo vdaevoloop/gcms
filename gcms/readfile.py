@@ -6,6 +6,7 @@ import re
 from scipy import signal
 import seaborn as sns
 import sys
+from scipy.signal import find_peaks_cwt
 
 
 class GC_CSV_Reader:
@@ -69,11 +70,16 @@ class GC_CSV_Reader:
         width = self.df["minutes"].between(start, end)
         return width.sum()
 
-    def find_peak(self) -> pd.Series:
+    def find_peak(self) -> pd.Series | None:
         """Finds peak in GC data.
 
-        Return a 1D list with values that represent the peaks.
+        Return:
+            Series where peak values are taken from data frame but rest is set to 0.
         """
+        if self.df is None:
+            logging.error("Dataframe is None")
+            return None
+        peak_indices = find_peaks_cwt(self.df["counts"], widths=13)
         return pd.Series()
 
 
