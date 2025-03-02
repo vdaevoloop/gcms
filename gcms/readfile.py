@@ -31,8 +31,14 @@ class GC_CSV_Reader:
             logging.error(f"File at '{path}' does not exists.")
             return None
         try:
-            df = pd.read_csv(path, usecols=["X(Minutes)", "Y(Counts)"]).rename(
-                columns={"X(Minutes)": "minutes", "Y(Counts)": "counts"}
+            df = pd.read_csv(
+                path, usecols=["#Point", "X(Minutes)", "Y(Counts)"]
+            ).rename(
+                columns={
+                    "#Point": "index",
+                    "X(Minutes)": "minutes",
+                    "Y(Counts)": "counts",
+                }
             )
             if not pd.api.types.is_numeric_dtype(df["minutes"]):
                 df["minutes"] = pd.to_numeric(df["minutes"], errors="coerce")
@@ -43,6 +49,11 @@ class GC_CSV_Reader:
                 df["counts"] = pd.to_numeric(df["counts"], errors="coerce")
                 logging.warning(
                     "Column 'counts' contained non-numeric values, converted to NaN"
+                )
+            if not pd.api.types.is_numeric_dtype(df["index"]):
+                df["index"] = pd.to_numeric(df["index"], errors="coerce")
+                logging.warning(
+                    "Column 'index' contained non-numeric values, converted to NaN"
                 )
             df = df.dropna()
             logging.info("removed all NaN rows from table")
