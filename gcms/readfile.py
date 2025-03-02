@@ -63,6 +63,9 @@ class GC_CSV_Reader:
         if self.df is None:
             logging.error("Dataframe not initialized, yet.")
             return None
+        if end < start:
+            logging.error("start must come before end")
+            return None
         width = self.df["minutes"].between(start, end)
         return width.sum()
 
