@@ -14,13 +14,15 @@ from scipy.signal import find_peaks, find_peaks_cwt
 class GC_CSV_Reader:
     def __init__(
         self,
-        root_data="/Users/duc/Developer/aevoloop/gcms/data/csv_graph_files",
+        root_data="/Users/duc/Developer/aevoloop/data/csv_graph_files",
         file="HT_R81_est_2_out.csv",
     ) -> None:
         self.root_data = Path(root_data)
         self.file = file
         self.df = self.csv2dataframe()
+        self.peaks_cwt = None
         self.peaks = None
+        self.peak_props = None
 
     def csv2dataframe(self) -> pd.DataFrame | None:
         """
@@ -97,6 +99,34 @@ class GC_CSV_Reader:
                 label="peaks",
                 ax=ax,
             )
+        if df == 3:
+            if self.df is None or self.peaks is None:
+                logging.error("both dataframes must be initialized")
+                return None
+
+            fig, ax = plt.subplots()
+
+            sns.lineplot(data=self.df, x="minutes", y="counts", label="GC", ax=ax)
+            sns.scatterplot(
+                data=self.peaks,
+                x="minutes",
+                y="counts",
+                marker="x",
+                s=100,
+                color="red",
+                label="peaks",
+                ax=ax,
+            )
+            sns.scatterplot(
+                data=self.peaks_cwt,
+                x="minutes",
+                y="counts",
+                marker="o",
+                s=100,
+                color="orange",
+                label="peaks_cwt",
+                ax=ax,
+            )
 
         plt.plot()
 
@@ -115,10 +145,17 @@ class GC_CSV_Reader:
 
     def set_df_peaks(self) -> None:
         """Sets objects peak data frame."""
-        self.peaks = self.find_peaks()
+        try:
+            result = self.find_peaks()
+            if result is None:
+                raise ValueError("find_peaks returned None")
+            self.peaks, self.peak_props, self.peaks_cwt = result
+
+        except Exception as e:
+            logging.error(f"Error initializing peaks dataframe: {e}")
         return
 
-    def find_peaks(self) -> pd.DataFrame | None:
+    def find_peaks(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] | None:
         """Finds peak in GC data.
 
         Return:
@@ -127,12 +164,16 @@ class GC_CSV_Reader:
         if self.df is None:
             logging.error("Dataframe is None")
             return None
-        # peak_indices = find_peaks_cwt(self.df["counts"], widths=[8, 12, 16, 20])
-        peak_indices, _ = find_peaks(
-            self.df["counts"], height=20000, threshold=10000, distance=20
+        peak_indices, props = find_peaks(
+            self.df["counts"], height=20000, threshold=1500, distance=4
         )
 
-        if peak_indices[-1] > self.df["index"].size:
+        peak_indices_cwt = find_peaks_cwt(self.df["counts"], widths=10)
+
+        if (
+            peak_indices[-1] > self.df["index"].size
+            or peak_indices_cwt[-1] > self.df["index"].size
+        ):
             logging.error(f"Last peak at index {peak_indices[-1]} out of bound.")
             return None
 
@@ -148,11 +189,27 @@ class GC_CSV_Reader:
             except IndexError:
                 break
 
-        return pd.DataFrame(peak_series)
+        k = 0
+        peak_series_cwt = {"minutes": [], "counts": []}
+        for i in self.df["index"]:
+            try:
+                if i == peak_indices_cwt[k]:
+                    peak_series_cwt["minutes"].append(self.df["minutes"].iloc[i])
+                    peak_series_cwt["counts"].append(self.df["counts"].iloc[i])
+
+                    k += 1
+            except IndexError:
+                break
+
+        return (
+            pd.DataFrame(peak_series),
+            pd.DataFrame(props),
+            pd.DataFrame(peak_series_cwt),
+        )
 
 
 def replace_second_comma(
-    root_path="/Users/duc/Developer/aevoloop/gcms/data/csv_graph_files",
+    root_path="/Users/duc/Developer/aevoloop/data/csv_graph_files",
     file="HT_R81_est_2.csv",
 ):
     """
