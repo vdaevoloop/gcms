@@ -29,7 +29,7 @@ class GC_CSV_Reader:
         Return:
             pandas.DataFrame with "minutes", "counts" columns or None if error occurs
         """
-        path = self.root_data / self.file
+        path: Path = self.root_data / self.file
         if not path.exists():
             logging.error(f"File at '{path}' does not exists.")
             return None
@@ -178,8 +178,6 @@ def replace_second_comma(
                     i += 1
                     continue
                 inds = [m.start() for m in re.finditer(p, line.strip())]
-                if len(inds) < 2:
-                    raise ValueError(f"Line {i} expects at least 2 commas.")
                 assert len(inds) > 1, f"Only one comma found in line {i}"
                 out.write(line[: inds[1]] + "." + line[inds[1] + 1 :])
                 i += 1
