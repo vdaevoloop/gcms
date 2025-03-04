@@ -127,7 +127,7 @@ class GC_CSV_Reader:
                 label="peaks_cwt",
                 ax=ax,
             )
-
+        plt.title(self.file)
         plt.plot()
 
         return
@@ -164,9 +164,7 @@ class GC_CSV_Reader:
         if self.df is None:
             logging.error("Dataframe is None")
             return None
-        peak_indices, props = find_peaks(
-            self.df["counts"], height=20000, threshold=1500, distance=4
-        )
+        peak_indices, props = find_peaks(self.df["counts"], height=10000)
 
         peak_indices_cwt = find_peaks_cwt(self.df["counts"], widths=10)
 
