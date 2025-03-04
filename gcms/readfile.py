@@ -23,6 +23,7 @@ class GC_CSV_Reader:
         self.peaks_cwt = None
         self.peaks = None
         self.peak_props = None
+        self.df_savgol = None
 
     def csv2dataframe(self) -> pd.DataFrame | None:
         """
@@ -216,6 +217,19 @@ class GC_CSV_Reader:
             pd.DataFrame(props),
             pd.DataFrame(peak_series_cwt),
         )
+
+
+    def set_savgol_df(wl: int = 3, poly: int = 2) -> pd.DataFrame:
+      """Applies Savitzky-Golay-Filter on 'Counts'
+      Parameters: 
+        wl: window length. Considered data points for filter/smoothing. Must be an odd number.
+        poly: Highest order of polynom in equation to fit the curve. Should be less than wl.
+
+      Return:
+        Returns a new dataframe with smoothed 'Counts' data.
+      """
+      return pd.DataFrame()
+
 
 
 def replace_second_comma(
