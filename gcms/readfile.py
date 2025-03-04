@@ -8,7 +8,7 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
-from scipy.signal import find_peaks, find_peaks_cwt
+from scipy.signal import find_peaks, find_peaks_cwt, peak_prominences
 
 
 class GC_CSV_Reader:
@@ -143,8 +143,13 @@ class GC_CSV_Reader:
         width = self.df["minutes"].between(start, end)
         return width.sum()
 
-    def set_df_peaks(self) -> None:
-        """Sets objects peak data frame."""
+    def set_df_peaks(self, range: float) -> None:
+        """Sets objects peak data frame.
+        Arguments:
+          range [0, 1]:  Percent of largest peaks that should be included.
+                  1.0 -> All peaks
+                  0.1 -> 10 % of largest
+        """
         try:
             result = self.find_peaks()
             if result is None:
@@ -153,6 +158,8 @@ class GC_CSV_Reader:
 
         except Exception as e:
             logging.error(f"Error initializing peaks dataframe: {e}")
+
+        # TODO:
         return
 
     def find_peaks(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] | None:
@@ -168,6 +175,8 @@ class GC_CSV_Reader:
             self.df["counts"], height=20000, threshold=1500, distance=4
         )
 
+        prominences = peak_prominences(self.df["counts"], peak_indices)
+
         peak_indices_cwt = find_peaks_cwt(self.df["counts"], widths=10)
 
         if (
@@ -178,12 +187,13 @@ class GC_CSV_Reader:
             return None
 
         j = 0
-        peak_series = {"minutes": [], "counts": []}
+        peak_series = {"minutes": [], "counts": [], "prominence": []}
         for i in self.df["index"]:
             try:
                 if i == peak_indices[j]:
                     peak_series["minutes"].append(self.df["minutes"].iloc[i])
                     peak_series["counts"].append(self.df["counts"].iloc[i])
+                    peak_series["prominence"].append(prominences[j])
 
                     j += 1
             except IndexError:
