@@ -8,7 +8,7 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
-from scipy.signal import find_peaks, find_peaks_cwt
+from scipy.signal import find_peaks, find_peaks_cwt, peak_prominences
 
 
 class GC_CSV_Reader:
@@ -23,6 +23,7 @@ class GC_CSV_Reader:
         self.peaks_cwt = None
         self.peaks = None
         self.peak_props = None
+        self.df_savgol = None
 
     def csv2dataframe(self) -> pd.DataFrame | None:
         """
@@ -153,6 +154,7 @@ class GC_CSV_Reader:
 
         except Exception as e:
             logging.error(f"Error initializing peaks dataframe: {e}")
+
         return
 
     def find_peaks(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] | None:
@@ -166,6 +168,10 @@ class GC_CSV_Reader:
             return None
         peak_indices, props = find_peaks(self.df["counts"], height=10000)
 
+        prominences, left_bases, right_bases = peak_prominences(
+            self.df["counts"], peak_indices
+        )
+
         peak_indices_cwt = find_peaks_cwt(self.df["counts"], widths=10)
 
         if (
@@ -176,12 +182,13 @@ class GC_CSV_Reader:
             return None
 
         j = 0
-        peak_series = {"minutes": [], "counts": []}
+        peak_series = {"minutes": [], "counts": [], "prominence": []}
         for i in self.df["index"]:
             try:
                 if i == peak_indices[j]:
                     peak_series["minutes"].append(self.df["minutes"].iloc[i])
                     peak_series["counts"].append(self.df["counts"].iloc[i])
+                    peak_series["prominence"].append(prominences[j])
 
                     j += 1
             except IndexError:
@@ -204,6 +211,17 @@ class GC_CSV_Reader:
             pd.DataFrame(props),
             pd.DataFrame(peak_series_cwt),
         )
+
+    def set_savgol_df(self, wl: int = 3, poly: int = 2) -> pd.DataFrame:
+        """Applies Savitzky-Golay-Filter on 'Counts'
+        Parameters:
+          wl: window length. Considered data points for filter/smoothing. Must be an odd number.
+          poly: Highest order of polynom in equation to fit the curve. Should be less than wl.
+
+        Return:
+          Returns a new dataframe with smoothed 'Counts' data.
+        """
+        return pd.DataFrame()
 
 
 def replace_second_comma(
