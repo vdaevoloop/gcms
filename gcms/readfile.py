@@ -144,13 +144,8 @@ class GC_CSV_Reader:
         width = self.df["minutes"].between(start, end)
         return width.sum()
 
-    def set_df_peaks(self, range: float) -> None:
-        """Sets objects peak data frame.
-        Arguments:
-          range [0, 1]:  Percent of largest peaks that should be included.
-                  1.0 -> All peaks
-                  0.1 -> 10 % of largest
-        """
+    def set_df_peaks(self) -> None:
+        """Sets objects peak data frame."""
         try:
             result = self.find_peaks()
             if result is None:
@@ -160,7 +155,6 @@ class GC_CSV_Reader:
         except Exception as e:
             logging.error(f"Error initializing peaks dataframe: {e}")
 
-        # TODO:
         return
 
     def find_peaks(self) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame] | None:
@@ -176,7 +170,9 @@ class GC_CSV_Reader:
             self.df["counts"], height=20000, threshold=1500, distance=4
         )
 
-        prominences = peak_prominences(self.df["counts"], peak_indices)
+        prominences, left_bases, right_bases = peak_prominences(
+            self.df["counts"], peak_indices
+        )
 
         peak_indices_cwt = find_peaks_cwt(self.df["counts"], widths=10)
 
@@ -218,18 +214,16 @@ class GC_CSV_Reader:
             pd.DataFrame(peak_series_cwt),
         )
 
+    def set_savgol_df(self, wl: int = 3, poly: int = 2) -> pd.DataFrame:
+        """Applies Savitzky-Golay-Filter on 'Counts'
+        Parameters:
+          wl: window length. Considered data points for filter/smoothing. Must be an odd number.
+          poly: Highest order of polynom in equation to fit the curve. Should be less than wl.
 
-    def set_savgol_df(wl: int = 3, poly: int = 2) -> pd.DataFrame:
-      """Applies Savitzky-Golay-Filter on 'Counts'
-      Parameters: 
-        wl: window length. Considered data points for filter/smoothing. Must be an odd number.
-        poly: Highest order of polynom in equation to fit the curve. Should be less than wl.
-
-      Return:
-        Returns a new dataframe with smoothed 'Counts' data.
-      """
-      return pd.DataFrame()
-
+        Return:
+          Returns a new dataframe with smoothed 'Counts' data.
+        """
+        return pd.DataFrame()
 
 
 def replace_second_comma(
