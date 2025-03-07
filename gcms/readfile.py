@@ -72,62 +72,57 @@ class GC_CSV_Reader:
             logging.error(f"Error while reading file '{path}': {e}")
             return None
 
-    def plot_df(self, df=0) -> None:
-        if df == 0:
-            if self.df is None:
-                logging.error("dataframes must be initialized")
-            sns.relplot(data=self.df, x="minutes", y="counts", kind="line")
-        if df == 1:
-            if self.peaks is None:
-                logging.error("dataframes peaks must be initialized")
-            sns.relplot(data=self.peaks, x="minutes", y="counts", kind="scatter")
+    def plots(self, choice: str):
+        """Set plot option"""
+        if self.df is None:
+            logging.error("No dataframe available")
+            return
 
-        if df == 2:
-            if self.df is None or self.peaks is None:
-                logging.error("both dataframes must be initialized")
-                return None
+        match choice:
+            case "single":
+                self.plot_single_df(self.df)
+                return
+            case "single-index":
+                self.plot_single_df(self.df, x="index")
+                return
+            case "df-peaks":
+                try:
+                    if self.peaks is None:
+                        self.set_df_peaks()
+                    if self.peaks is None:
+                        raise ValueError("Not able to set peaks df")
+                except Exception as e:
+                    raise ValueError(f"Error while plotting: {e}")
+                self.plot_df_peaks(self.df, self.peaks)
+                return
 
-            fig, ax = plt.subplots()
+    def plot_single_df(self, df: pd.DataFrame, x: str = "minutes", y: str = "counts"):
+        """Plot single DF"""
+        sns.relplot(data=df, x=x, y=y, kind="line")
+        plt.title(self.file)
+        return
 
-            sns.lineplot(data=self.df, x="minutes", y="counts", label="GC", ax=ax)
-            sns.scatterplot(
-                data=self.peaks,
-                x="minutes",
-                y="counts",
-                marker="x",
-                s=100,
-                color="red",
-                label="peaks",
-                ax=ax,
-            )
-        if df == 3:
-            if self.df is None or self.peaks is None:
-                logging.error("both dataframes must be initialized")
-                return None
+    def plot_df_peaks(
+        self,
+        df: pd.DataFrame,
+        peaks: pd.DataFrame,
+        x: str = "minutes",
+        y: str = "counts",
+    ):
+        """Plots data as lines and peaks as scatter plot"""
+        _, ax = plt.subplots()
 
-            fig, ax = plt.subplots()
-
-            sns.lineplot(data=self.df, x="minutes", y="counts", label="GC", ax=ax)
-            sns.scatterplot(
-                data=self.peaks,
-                x="minutes",
-                y="counts",
-                marker="x",
-                s=100,
-                color="red",
-                label="peaks",
-                ax=ax,
-            )
-            sns.scatterplot(
-                data=self.peaks_cwt,
-                x="minutes",
-                y="counts",
-                marker="o",
-                s=100,
-                color="orange",
-                label="peaks_cwt",
-                ax=ax,
-            )
+        sns.lineplot(data=df, x=x, y=y, label="GC", ax=ax)
+        sns.scatterplot(
+            data=peaks,
+            x=x,
+            y=y,
+            marker="x",
+            s=100,
+            color="red",
+            label="peaks",
+            ax=ax,
+        )
         plt.title(self.file)
         plt.plot()
 
@@ -144,7 +139,7 @@ class GC_CSV_Reader:
         width = self.df["minutes"].between(start, end)
         return width.sum()
 
-    def set_df_peaks(self) -> None:
+    def set_df_peaks(self):
         """Sets objects peak data frame."""
         try:
             result = self.find_peaks()
@@ -153,7 +148,8 @@ class GC_CSV_Reader:
             self.peaks, self.peak_props, self.peaks_cwt = result
 
         except Exception as e:
-            logging.error(f"Error initializing peaks dataframe: {e}")
+            logging.error(f"Error while setting peak: {e}")
+            raise e
 
         return
 
@@ -182,25 +178,27 @@ class GC_CSV_Reader:
             return None
 
         j = 0
-        peak_series = {"minutes": [], "counts": [], "prominence": []}
+        peak_series = {"index": [], "minutes": [], "counts": [], "prominence": []}
         for i in self.df["index"]:
             try:
                 if i == peak_indices[j]:
                     peak_series["minutes"].append(self.df["minutes"].iloc[i])
                     peak_series["counts"].append(self.df["counts"].iloc[i])
                     peak_series["prominence"].append(prominences[j])
+                    peak_series["index"].append((i))
 
                     j += 1
             except IndexError:
                 break
 
         k = 0
-        peak_series_cwt = {"minutes": [], "counts": []}
+        peak_series_cwt = {"index": [], "minutes": [], "counts": []}
         for i in self.df["index"]:
             try:
                 if i == peak_indices_cwt[k]:
                     peak_series_cwt["minutes"].append(self.df["minutes"].iloc[i])
                     peak_series_cwt["counts"].append(self.df["counts"].iloc[i])
+                    peak_series["index"].append((i))
 
                     k += 1
             except IndexError:
