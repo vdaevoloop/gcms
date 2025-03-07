@@ -232,7 +232,7 @@ class GC_CSV_Reader:
         """
         try:
             filtered = DF_filtered(self.df, wl, poly)
-            return filtered.get_df()
+            self.df_savgol = filtered.get_df()
         except Exception as e:
             logging.error(f"Error applying savgol: {e}")
 
