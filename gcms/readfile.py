@@ -212,7 +212,7 @@ class GC_CSV_Reader:
             pd.DataFrame(peak_series_cwt),
         )
 
-    def set_savgol_df(self, wl: int = 3, poly: int = 2) -> pd.DataFrame:
+    def set_savgol_df(self, wl: int = 3, poly: int = 2) -> pd.DataFrame | None:
         """Applies Savitzky-Golay-Filter on 'Counts'
         Parameters:
           wl: window length. Considered data points for filter/smoothing. Must be an odd number.
@@ -221,7 +221,43 @@ class GC_CSV_Reader:
         Return:
           Returns a new dataframe with smoothed 'Counts' data.
         """
-        return pd.DataFrame()
+        try:
+            filtered = DF_filtered(self.df, wl, poly)
+            return filtered.get_df()
+        except Exception as e:
+            logging.error(f"Error applying savgol: {e}")
+
+        return None
+
+
+class DF_filtered:
+    """GC data that is smoothed using the savgol filter."""
+
+    def __init__(self, df, wl: int, poly: int):
+        self.df = self.set_df(df, wl, poly)
+
+    def set_df(self, df: pd.DataFrame, wl: int, poly: int) -> pd.DataFrame | None:
+        """Apply savgol filter"""
+
+        if "minutes" not in df.columns or "counts" not in df.columns:
+            raise ValueError("Coulumns not matching")
+
+        try:
+            counts_savgol = signal.savgol_filter(df["counts"].to_numpy(), wl, poly)
+        except Exception as e:
+            raise ValueError(f"Could not process data: {e}")
+
+        try:
+            df_savgol = pd.DataFrame(
+                {"minutes": df["minutes"], "counts": counts_savgol}
+            )
+        except Exception:
+            raise ValueError(f"Could not process data: {df}")
+
+        return df_savgol
+
+    def get_df(self) -> pd.DataFrame | None:
+        return self.df
 
 
 def replace_second_comma(
