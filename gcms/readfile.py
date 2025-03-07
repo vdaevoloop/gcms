@@ -92,9 +92,20 @@ class GC_CSV_Reader:
                     if self.peaks is None:
                         raise ValueError("Not able to set peaks df")
                 except Exception as e:
-                    raise ValueError(f"Error while plotting: {e}")
+                    logging.error(f"Failed to find peaks: {e}")
+                    return
                 self.plot_df_peaks(self.df, self.peaks)
                 return
+            case "savgol-single":
+                try:
+                    if self.df_savgol is None:
+                        self.set_savgol_df()
+                    if self.df_savgol is None:
+                        raise ValueError("Failed to apply savgol filter")
+                except Exception as e:
+                    logging.error(f"Failed to apply savgol filter: {e}")
+                    return
+                self.plot_single_df(self.df_savgol)
 
     def plot_single_df(self, df: pd.DataFrame, x: str = "minutes", y: str = "counts"):
         """Plot single DF"""
