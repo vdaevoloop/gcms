@@ -106,6 +106,16 @@ class GC_CSV_Reader:
                     logging.error(f"Failed to apply savgol filter: {e}")
                     return
                 self.plot_single_df(self.df_savgol)
+            case "savgol-single-index":
+                try:
+                    if self.df_savgol is None:
+                        self.set_savgol_df()
+                    if self.df_savgol is None:
+                        raise ValueError("Failed to apply savgol filter")
+                except Exception as e:
+                    logging.error(f"Failed to apply savgol filter: {e}")
+                    return
+                self.plot_single_df(self.df_savgol, x="index")
 
     def plot_single_df(self, df: pd.DataFrame, x: str = "minutes", y: str = "counts"):
         """Plot single DF"""
@@ -231,7 +241,7 @@ class GC_CSV_Reader:
           Returns a new dataframe with smoothed 'Counts' data.
         """
         try:
-            filtered = DF_filtered(self.df, wl, poly)
+            filtered = DF_Savgol(self.df, wl, poly)
             self.df_savgol = filtered.get_df()
         except Exception as e:
             logging.error(f"Error applying savgol: {e}")
@@ -239,7 +249,7 @@ class GC_CSV_Reader:
         return None
 
 
-class DF_filtered:
+class DF_Savgol:
     """GC data that is smoothed using the savgol filter."""
 
     def __init__(self, df, wl: int, poly: int):
@@ -248,7 +258,11 @@ class DF_filtered:
     def set_df(self, df: pd.DataFrame, wl: int, poly: int) -> pd.DataFrame | None:
         """Apply savgol filter"""
 
-        if "minutes" not in df.columns or "counts" not in df.columns:
+        if (
+            "index" not in df.columns
+            or "minutes" not in df.columns
+            or "counts" not in df.columns
+        ):
             raise ValueError("Coulumns not matching")
 
         try:
@@ -258,7 +272,11 @@ class DF_filtered:
 
         try:
             df_savgol = pd.DataFrame(
-                {"minutes": df["minutes"], "counts": counts_savgol}
+                {
+                    "index": df["index"],
+                    "minutes": df["minutes"],
+                    "counts": counts_savgol,
+                }
             )
         except Exception:
             raise ValueError(f"Could not process data: {df}")

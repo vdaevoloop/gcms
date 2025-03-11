@@ -5,11 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "icecream>=2.1.4",
-    "ipython>=8.32.0",
-    "logging>=0.4.9.6",
-    "matplotlib>=3.10.0",
-    "pandas>=2.2.3",
-    "scipy>=1.15.2",
-    "seaborn>=0.13.2",
+  "ipython>=8.32.0",
+  "logging>=0.4.9.6",
+  "matplotlib>=3.10.0",
+  "pandas>=2.2.3",
+  "pyopenms==3.2.0",
+  "scipy>=1.15.2",
+  "seaborn>=0.13.2",
 ]
