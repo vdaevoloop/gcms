@@ -41,13 +41,11 @@ class Exp:
     def extract_chrom(self) -> oms.MSChromatogram | None:
         """Extracts a TIC (total intensity current)."""
         if self.exp.getNrChromatograms() != 1:
-            logging.error(
+            raise ValueError(
                 f"Number of chromatograms contained in mzML file: {self.exp.getNrChromatograms()}"
             )
-            return None
 
-        # TODO:
-        return oms.MSChromatogram()
+        # TODO: Extract from mzML file
 
 
 class Chrom:
