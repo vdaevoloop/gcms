@@ -18,9 +18,9 @@ class Exp:
 
         if mzml_file is None and testdata is True:
             try:
-                self.mzml_file = pathlib.Path(TESTDATA)
+                self.mzml_file = pathlib.Path(self.__class__.TESTDATA)
             except Exception as e:
-                raise ValueError(f"Error reading path '{TESTDATA}': {e}")
+                raise ValueError(f"Error reading path '{self.__class__.TESTDATA}': {e}")
         elif mzml_file is None and testdata is False:
             self.mzml_file = None
         else:
@@ -56,4 +56,4 @@ class Chrom:
     Do peak-finding and peak-integration work."""
 
     def __init__(self, mzml_file: str | None = None) -> None:
-        self.chrom = None
+        self.chrom: oms.MSChromatogram = Exp(mzml_file).extract_chrom()
