@@ -3,6 +3,7 @@ from icecream import ic
 from pathlib import Path
 import logging
 import pandas as pd
+from pyopenms_client import PyOpenMsClient as omsc
 
 
 def main():
@@ -32,8 +33,14 @@ def first_look_at_data():
 
     df = pd.DataFrame({"retention_time": retention_times, "intensity": intensities})
     print(df)
+    return
+
+
+def testclient():
+    chrom1 = omsc.Chrom()
+    return
 
 
 if __name__ == "__main__":
     main()
-    first_look_at_data()
+    testclient()
