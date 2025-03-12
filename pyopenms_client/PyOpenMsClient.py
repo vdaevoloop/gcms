@@ -84,12 +84,13 @@ class Chrom:
             raise ValueError(f"Error applying peak picker: {e}")
         return
 
-    def get_df(self, chrom: MSChromatogram) -> DataFrame | None:
-        """Extract retention time and intensity and return as DataFrame"""
-        try:
-            rt, intensities = chrom.get_peaks()
-        except Exception as e:
-            logging.error(f"Error getting DataFrame from '{chrom}': {e}")
-            return None
 
-        return DataFrame({"retention_time": rt, "intensity": intensities})
+def get_df(chrom: MSChromatogram) -> DataFrame | None:
+    """Extract retention time and intensity and return as DataFrame"""
+    try:
+        rt, intensities = chrom.get_peaks()
+    except Exception as e:
+        logging.error(f"Error getting DataFrame from '{chrom}': {e}")
+        return None
+
+    return DataFrame({"retention_time": rt, "intensity": intensities})

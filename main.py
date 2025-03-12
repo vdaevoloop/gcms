@@ -3,7 +3,9 @@ from icecream import ic
 from pathlib import Path
 import logging
 import pandas as pd
+import matplotlib.pyplot as plt
 from pyopenms_client import PyOpenMsClient as omsc
+from plotting import ChromPlotting as cp
 
 
 def main():
@@ -38,9 +40,12 @@ def first_look_at_data():
 
 def testclient():
     chrom1 = omsc.Chrom()
-
     chrom1.apply_pickChromatogram()
-    chrom1.plot(chrom1.picker_chrom)
+    dfs = (omsc.get_df(chrom1.chrom), omsc.get_df(chrom1.picker_chrom))
+
+    cp.plot_any_scatter(dfs)
+    plt.show()
+
     return
 
 
