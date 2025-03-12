@@ -85,12 +85,12 @@ class Chrom:
         return
 
 
-def get_df(chrom: MSChromatogram) -> DataFrame | None:
+def get_df(chrom: MSChromatogram) -> DataFrame:
     """Extract retention time and intensity and return as DataFrame"""
     try:
         rt, intensities = chrom.get_peaks()
     except Exception as e:
         logging.error(f"Error getting DataFrame from '{chrom}': {e}")
-        return None
+        raise
 
     return DataFrame({"retention_time": rt, "intensity": intensities})
