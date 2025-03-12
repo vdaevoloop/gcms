@@ -19,11 +19,16 @@ class ChromPlotter:
         title: str = "DataFrames Scatter Plot",
         legend: bool = True,
     ) -> None:
+        # TODO:Finish documentation
         """Takes a list of DataFrames and plots all in one scatter plot
 
         Args:
             dfs: A list of pandas DataFrame. All frames must have the same columns for x and y (default for chromatograms: x='retention_time' and y='intensity')
             x: Name for x-axis
             y: Name for y-axis
-
         """
+        if labels is not None:
+            if len(dfs) != len(labels):
+                raise ValueError("arg 'labels' must be of same length as 'dfs'")
+        else:
+            labels = [f"DF {i + 1}" for i in range(len(dfs))]
