@@ -1,4 +1,11 @@
-import pyopenms as oms
+from pandas import DataFrame
+from pyopenms import (
+    MSChromatogram,
+    plotting,
+    MSExperiment,
+    MzMLFile,
+    PeakPickerChromatogram,
+)
 import logging
 import pathlib
 
@@ -14,7 +21,7 @@ class Exp:
     def __init__(
         self, mzml_file: str | None = None, testdata: bool = True, selfinit: bool = True
     ) -> None:
-        self.exp = oms.MSExperiment()
+        self.exp = MSExperiment()
 
         if mzml_file is None and testdata is True:
             try:
@@ -34,18 +41,18 @@ class Exp:
     def set_dataset(self, file: str) -> None:
         """Reads a mzML file into an Exp object"""
         try:
-            oms.MzMLFile().load(file, self.exp)
+            MzMLFile().load(file, self.exp)
         except Exception as e:
             raise FileNotFoundError(f"Error while importing mzML file '{file}': {e}")
 
-    def extract_chrom(self) -> oms.MSChromatogram | None:
+    def extract_chrom(self) -> MSChromatogram | None:
         """Extracts a TIC (total intensity current)."""
         if self.exp.getNrChromatograms() != 1:
             raise ValueError(
                 f"Number of chromatograms contained in mzML file: {self.exp.getNrChromatograms()}"
             )
 
-        # TODO: Extract from mzML file
+        return self.exp.getChromatogram(0)
 
 
 class Chrom:
@@ -54,4 +61,35 @@ class Chrom:
     Do peak-finding and peak-integration work."""
 
     def __init__(self, mzml_file: str | None = None) -> None:
-        self.chrom: oms.MSChromatogram = Exp(mzml_file).extract_chrom()
+        self.chrom: MSChromatogram = Exp(mzml_file).extract_chrom()
+        self.picker_chrom = MSChromatogram()
+        self.picker = PeakPickerChromatogram()
+        return
+
+    def plot(self, chrom=None) -> None:
+        if chrom is None:
+            chrom = self.chrom
+        plotting.plot_chromatogram(chrom)
+        return
+
+    def apply_pickChromatogram(self) -> None:
+        """Use PeakPickerChromatogram.pickCkromatogram"""
+        try:
+            self.picker.pickChromatogram(
+                self.chrom,
+                self.picker_chrom,
+            )
+            logging.info("Peak picker applied")
+        except Exception as e:
+            raise ValueError(f"Error applying peak picker: {e}")
+        return
+
+    def get_df(self, chrom: MSChromatogram) -> DataFrame | None:
+        """Extract retention time and intensity and return as DataFrame"""
+        try:
+            rt, intensities = chrom.get_peaks()
+        except Exception as e:
+            logging.error(f"Error getting DataFrame from '{chrom}': {e}")
+            return None
+
+        return DataFrame({"retention_time": rt, "intensity": intensities})

@@ -38,6 +38,9 @@ def first_look_at_data():
 
 def testclient():
     chrom1 = omsc.Chrom()
+
+    chrom1.apply_pickChromatogram()
+    chrom1.plot(chrom1.picker_chrom)
     return
 
 
