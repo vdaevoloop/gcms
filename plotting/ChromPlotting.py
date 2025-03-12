@@ -1,10 +1,8 @@
-from icecream import ic
 import logging
 import pandas as pd
-from pathlib import Path
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 import seaborn as sns
-import sys
 
 
 class ChromPlotter:
@@ -12,13 +10,14 @@ class ChromPlotter:
 
     def plot_any_scatter(
         self,
-        dfs: list[pd.DataFrame],
+        dfs: list[pd.DataFrame] | tuple[pd.DataFrame],
         x: str = "retention_time",
         y: str = "intensity",
-        labels: list[str] | None = None,
+        labels: list[str] | tuple[str] | None = None,
         title: str = "DataFrames Scatter Plot",
         legend: bool = True,
-    ) -> None:
+        ax: Axes | None = None,
+    ) -> Axes | None:
         # TODO:Finish documentation
         """Takes a list of DataFrames and plots all in one scatter plot
 
@@ -31,4 +30,23 @@ class ChromPlotter:
             if len(dfs) != len(labels):
                 raise ValueError("arg 'labels' must be of same length as 'dfs'")
         else:
-            labels = [f"DF {i + 1}" for i in range(len(dfs))]
+            labels = [f"DF {i}" for i in range(len(dfs))]
+
+        if ax is None:
+            fig, ax = plt.subplots()
+        else:
+            fig = ax.figure
+
+        try:
+            for i, df in enumerate(dfs):
+                if x not in df.columns or y not in df.columns:
+                    raise KeyError(f"DF {i} does not contain all colums: '{x}', '{y}'")
+
+                sns.scatterplot(data=df, x=x, y=y, label=labels[i])
+
+        except Exception as e:
+            logging.error(f"Error occured during plotting: {e}")
+            raise
+
+        ax.set_title(title)
+        return ax
