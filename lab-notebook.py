@@ -46,9 +46,9 @@ def testclient():
     cp.plot_any_scatter(dfs)
     plt.show()
 
-    # picker = oms.PeakPickerChromatogram()
-    # params = picker.getParameters()
-    # ic(params.asDict())
+    # for i, peak in enumerate(chrom1.picked_peaks):
+    #     if i == 1:
+    #         ic(peak)
 
     return
 

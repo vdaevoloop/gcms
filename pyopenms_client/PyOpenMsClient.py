@@ -78,7 +78,7 @@ class Chrom:
         params.setValue(b"sgolay_frame_length", 5)
         params.setValue(b"sgolay_polynomial_order", 2)
         params.setValue(b"use_gauss", "false")
-        params.setValue(b"signal_to_noise", 0.5)
+        params.setValue(b"signal_to_noise", 0.8)
         self.picker.setParameters(params)
 
         try:
@@ -86,9 +86,9 @@ class Chrom:
                 self.chrom,
                 self.picked_peaks,
             )
-            logging.info("Peak picker applied")
+            logging.info("Peak picker finished successfully")
         except Exception as e:
-            raise ValueError(f"Error applying peak picker: {e}")
+            raise ValueError(f"Error finding peaks: {e}")
         return
 
 

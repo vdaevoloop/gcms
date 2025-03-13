@@ -38,7 +38,7 @@ def plot_any_scatter(
             if x not in df.columns or y not in df.columns:
                 raise KeyError(f"DF {i} does not contain all colums: '{x}', '{y}'")
 
-            sns.scatterplot(data=df, x=x, y=y, label=labels[i])
+            sns.lineplot(data=df, x=x, y=y, label=labels[i])
 
     except Exception as e:
         logging.error(f"Error occured during plotting: {e}")
