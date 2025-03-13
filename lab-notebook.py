@@ -40,14 +40,19 @@ def first_look_at_data():
 
 def testclient():
     chrom1 = omsc.Chrom()
-    chrom1.apply_pickChromatogram()
-    dfs = (omsc.get_df(chrom1.chrom), omsc.get_df(chrom1.picker_chrom))
+    chrom1.find_peaks()
+    dfs = (omsc.get_df(chrom1.chrom), omsc.get_df(chrom1.picked_peaks))
 
     cp.plot_any_scatter(dfs)
     plt.show()
+
+    # picker = oms.PeakPickerChromatogram()
+    # params = picker.getParameters()
+    # ic(params.asDict())
 
     return
 
 
 if __name__ == "__main__":
     greetings()
+    testclient()

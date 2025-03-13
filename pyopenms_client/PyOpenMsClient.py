@@ -62,7 +62,7 @@ class Chrom:
 
     def __init__(self, mzml_file: str | None = None) -> None:
         self.chrom: MSChromatogram = Exp(mzml_file).extract_chrom()
-        self.picker_chrom = MSChromatogram()
+        self.picked_peaks = MSChromatogram()
         self.picker = PeakPickerChromatogram()
         return
 
@@ -72,12 +72,19 @@ class Chrom:
         plotting.plot_chromatogram(chrom)
         return
 
-    def apply_pickChromatogram(self) -> None:
-        """Use PeakPickerChromatogram.pickCkromatogram"""
+    def find_peaks(self) -> None:
+        """Find peaks inside a MSChromatogram and save peaks to separate MSChromatogram"""
+        params = self.picker.getParameters()
+        params.setValue(b"sgolay_frame_length", 5)
+        params.setValue(b"sgolay_polynomial_order", 2)
+        params.setValue(b"use_gauss", "false")
+        params.setValue(b"signal_to_noise", 0.5)
+        self.picker.setParameters(params)
+
         try:
             self.picker.pickChromatogram(
                 self.chrom,
-                self.picker_chrom,
+                self.picked_peaks,
             )
             logging.info("Peak picker applied")
         except Exception as e:

@@ -244,7 +244,7 @@ class GC_CSV_Reader:
             pd.DataFrame(peak_series_cwt),
         )
 
-    def set_savgol_df(self, wl: int = 3, poly: int = 2) -> pd.DataFrame | None:
+    def set_savgol_df(self, wl: int = 6, poly: int = 2) -> pd.DataFrame | None:
         """Applies Savitzky-Golay-Filter on 'intensity'
         Parameters:
           wl: window length. Considered data points for filter/smoothing. Must be an odd number.
