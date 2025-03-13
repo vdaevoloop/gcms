@@ -28,9 +28,9 @@ class GC_CSV_Reader:
     def csv2dataframe(self) -> pd.DataFrame | None:
         """
         Reads a csv file and returns a DataFrame. Csv must contain the columns 'X(Minutes)' and 'Y(Counts)'.
-        Columns are renamed to 'minutes' and 'counts'. Rows containing non-numeric values are removed.
+        Columns are renamed to 'retention_time' and 'intensity'. Rows containing non-numeric values are removed.
         Return:
-            pandas.DataFrame with "minutes", "counts" columns or None if error occurs
+            pandas.DataFrame with "retention_time", "intensity" columns or None if error occurs
         """
         path: Path = self.root_data / self.file
         if not path.exists():
@@ -42,19 +42,21 @@ class GC_CSV_Reader:
             ).rename(
                 columns={
                     "#Point": "index",
-                    "X(Minutes)": "minutes",
-                    "Y(Counts)": "counts",
+                    "X(Minutes)": "retention_time",
+                    "Y(Counts)": "intensity",
                 }
             )
-            if not pd.api.types.is_numeric_dtype(df["minutes"]):
-                df["minutes"] = pd.to_numeric(df["minutes"], errors="coerce")
-                logging.warning(
-                    "Column 'minutes' contained non-numeric values, converted to NaN"
+            if not pd.api.types.is_numeric_dtype(df["retention_time"]):
+                df["retention_time"] = pd.to_numeric(
+                    df["retention_time"], errors="coerce"
                 )
-            if not pd.api.types.is_numeric_dtype(df["counts"]):
-                df["counts"] = pd.to_numeric(df["counts"], errors="coerce")
                 logging.warning(
-                    "Column 'counts' contained non-numeric values, converted to NaN"
+                    "Column 'retention_time' contained non-numeric values, converted to NaN"
+                )
+            if not pd.api.types.is_numeric_dtype(df["intensity"]):
+                df["intensity"] = pd.to_numeric(df["intensity"], errors="coerce")
+                logging.warning(
+                    "Column 'intensity' contained non-numeric values, converted to NaN"
                 )
             if not pd.api.types.is_numeric_dtype(df["index"]):
                 df["index"] = pd.to_numeric(df["index"], errors="coerce")
@@ -117,7 +119,9 @@ class GC_CSV_Reader:
                     return
                 self.plot_single_df(self.df_savgol, x="index")
 
-    def plot_single_df(self, df: pd.DataFrame, x: str = "minutes", y: str = "counts"):
+    def plot_single_df(
+        self, df: pd.DataFrame, x: str = "retention_time", y: str = "intensity"
+    ):
         """Plot single DF"""
         sns.relplot(data=df, x=x, y=y, kind="line")
         plt.title(self.file)
@@ -127,8 +131,8 @@ class GC_CSV_Reader:
         self,
         df: pd.DataFrame,
         peaks: pd.DataFrame,
-        x: str = "minutes",
-        y: str = "counts",
+        x: str = "retention_time",
+        y: str = "intensity",
     ):
         """Plots data as lines and peaks as scatter plot"""
         _, ax = plt.subplots()
@@ -157,7 +161,7 @@ class GC_CSV_Reader:
         if end < start:
             logging.error("start must come before end")
             return None
-        width = self.df["minutes"].between(start, end)
+        width = self.df["retention_time"].between(start, end)
         return width.sum()
 
     def set_df_peaks(self):
@@ -178,18 +182,18 @@ class GC_CSV_Reader:
         """Finds peak in GC data.
 
         Return:
-            DataFrame of minutes and count values of peaks.
+            DataFrame of retention_time and count values of peaks.
         """
         if self.df is None:
             logging.error("Dataframe is None")
             return None
-        peak_indices, props = find_peaks(self.df["counts"], height=10000)
+        peak_indices, props = find_peaks(self.df["intensity"], height=10000)
 
         prominences, left_bases, right_bases = peak_prominences(
-            self.df["counts"], peak_indices
+            self.df["intensity"], peak_indices
         )
 
-        peak_indices_cwt = find_peaks_cwt(self.df["counts"], widths=10)
+        peak_indices_cwt = find_peaks_cwt(self.df["intensity"], widths=10)
 
         if (
             peak_indices[-1] > self.df["index"].size
@@ -199,12 +203,19 @@ class GC_CSV_Reader:
             return None
 
         j = 0
-        peak_series = {"index": [], "minutes": [], "counts": [], "prominence": []}
+        peak_series = {
+            "index": [],
+            "retention_time": [],
+            "intensity": [],
+            "prominence": [],
+        }
         for i in self.df["index"]:
             try:
                 if i == peak_indices[j]:
-                    peak_series["minutes"].append(self.df["minutes"].iloc[i])
-                    peak_series["counts"].append(self.df["counts"].iloc[i])
+                    peak_series["retention_time"].append(
+                        self.df["retention_time"].iloc[i]
+                    )
+                    peak_series["intensity"].append(self.df["intensity"].iloc[i])
                     peak_series["prominence"].append(prominences[j])
                     peak_series["index"].append((i))
 
@@ -213,12 +224,14 @@ class GC_CSV_Reader:
                 break
 
         k = 0
-        peak_series_cwt = {"index": [], "minutes": [], "counts": []}
+        peak_series_cwt = {"index": [], "retention_time": [], "intensity": []}
         for i in self.df["index"]:
             try:
                 if i == peak_indices_cwt[k]:
-                    peak_series_cwt["minutes"].append(self.df["minutes"].iloc[i])
-                    peak_series_cwt["counts"].append(self.df["counts"].iloc[i])
+                    peak_series_cwt["retention_time"].append(
+                        self.df["retention_time"].iloc[i]
+                    )
+                    peak_series_cwt["intensity"].append(self.df["intensity"].iloc[i])
                     peak_series["index"].append((i))
 
                     k += 1
@@ -231,14 +244,14 @@ class GC_CSV_Reader:
             pd.DataFrame(peak_series_cwt),
         )
 
-    def set_savgol_df(self, wl: int = 3, poly: int = 2) -> pd.DataFrame | None:
-        """Applies Savitzky-Golay-Filter on 'Counts'
+    def set_savgol_df(self, wl: int = 6, poly: int = 2) -> pd.DataFrame | None:
+        """Applies Savitzky-Golay-Filter on 'intensity'
         Parameters:
           wl: window length. Considered data points for filter/smoothing. Must be an odd number.
           poly: Highest order of polynom in equation to fit the curve. Should be less than wl.
 
         Return:
-          Returns a new dataframe with smoothed 'Counts' data.
+          Returns a new dataframe with smoothed 'intensity' data.
         """
         try:
             filtered = DF_Savgol(self.df, wl, poly)
@@ -260,13 +273,13 @@ class DF_Savgol:
 
         if (
             "index" not in df.columns
-            or "minutes" not in df.columns
-            or "counts" not in df.columns
+            or "retention_time" not in df.columns
+            or "intensity" not in df.columns
         ):
             raise ValueError("Coulumns not matching")
 
         try:
-            counts_savgol = signal.savgol_filter(df["counts"].to_numpy(), wl, poly)
+            counts_savgol = signal.savgol_filter(df["intensity"].to_numpy(), wl, poly)
         except Exception as e:
             raise ValueError(f"Could not process data: {e}")
 
@@ -274,8 +287,8 @@ class DF_Savgol:
             df_savgol = pd.DataFrame(
                 {
                     "index": df["index"],
-                    "minutes": df["minutes"],
-                    "counts": counts_savgol,
+                    "retention_time": df["retention_time"],
+                    "intensity": counts_savgol,
                 }
             )
         except Exception:
