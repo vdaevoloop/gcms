@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyopenms_client import PyOpenMsClient as omsc
 from plotting import ChromPlotting as cp
+from gcms import DataReader, Processor
 
 
 def greetings():
@@ -56,6 +57,12 @@ def testclient():
     return
 
 
+def demo():
+    p = Processor.ChromatogramProcessor()
+    p.set_reader(DataReader.PyomenmsReader())
+    p.set_df("/Users/duc/Developer/aevoloop/gcms/.data/test_mzml/PS_R667_EST_3.mzML")
+
+
 if __name__ == "__main__":
     greetings()
-    testclient()
+    demo()

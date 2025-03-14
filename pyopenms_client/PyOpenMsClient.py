@@ -1,3 +1,4 @@
+from decimal import ExtendedContext
 from pandas import DataFrame
 from pyopenms import (
     MSChromatogram,
@@ -19,7 +20,10 @@ class Exp:
     TESTDATA = ".data/test_mzml/PS_R667_EST_3.mzML"
 
     def __init__(
-        self, mzml_file: str | None = None, testdata: bool = True, selfinit: bool = True
+        self,
+        mzml_file: pathlib.Path | None = None,
+        testdata: bool = True,
+        selfinit: bool = True,
     ) -> None:
         self.exp = MSExperiment()
 
@@ -31,7 +35,13 @@ class Exp:
         elif mzml_file is None and testdata is False:
             self.mzml_file = None
         else:
-            self.mzml_file = mzml_file
+            try:
+                self.mzml_file = mzml_file
+            except Exception as e:
+                logging.error(
+                    f"Error while converting path string to pathlib.Path: {e}"
+                )
+                raise
 
         if self.mzml_file is not None and selfinit is True:
             self.set_dataset(str(self.mzml_file))
@@ -60,7 +70,7 @@ class Chrom:
     Extract a single chromatogram from a mzML file.
     Do peak-finding and peak-integration work."""
 
-    def __init__(self, mzml_file: str | None = None) -> None:
+    def __init__(self, mzml_file: pathlib.Path | None = None) -> None:
         self.chrom: MSChromatogram = Exp(mzml_file).extract_chrom()
         self.picked_peaks = MSChromatogram()
         self.picker = PeakPickerChromatogram()
