@@ -1,12 +1,13 @@
 import logging
+from numpy import linspace
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import seaborn as sns
 
 
-def plot_any_scatter(
-    dfs: list[pd.DataFrame] | tuple[pd.DataFrame],
+def plot_any_df(
+    dfs: tuple[tuple[pd.DataFrame, str]],
     x: str = "retention_time",
     y: str = "intensity",
     labels: list[str] | tuple[str] | None = None,
@@ -33,12 +34,19 @@ def plot_any_scatter(
     else:
         fig = ax.figure
 
+    cmap = plt.get_cmap("viridis")
+    colors = [cmap(i) for i in linspace(0, 1, len(dfs))]
+
     try:
-        for i, df in enumerate(dfs):
+        for i, (df, plot_type) in enumerate(dfs):
             if x not in df.columns or y not in df.columns:
                 raise KeyError(f"DF {i} does not contain all colums: '{x}', '{y}'")
-
-            sns.lineplot(data=df, x=x, y=y, label=labels[i])
+            if plot_type == "scatter":
+                sns.scatterplot(
+                    data=df, x=x, y=y, label=labels[i], color=colors[i], ax=ax
+                )
+            elif plot_type == "line":
+                sns.lineplot(data=df, x=x, y=y, label=labels[i], color=colors[i], ax=ax)
 
     except Exception as e:
         logging.error(f"Error occured during plotting: {e}")

@@ -41,9 +41,12 @@ def first_look_at_data():
 def testclient():
     chrom1 = omsc.Chrom()
     chrom1.find_peaks()
-    dfs = (omsc.get_df(chrom1.chrom), omsc.get_df(chrom1.picked_peaks))
+    dfs = (
+        (omsc.get_df(chrom1.chrom), "line"),
+        (omsc.get_df(chrom1.picked_peaks), "scatter"),
+    )
 
-    cp.plot_any_scatter(dfs)
+    cp.plot_any_df(dfs)
     plt.show()
 
     # for i, peak in enumerate(chrom1.picked_peaks):
