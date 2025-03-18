@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyopenms_client import PyOpenMsClient as omsc
 from plotting import ChromPlotting as cp
+from gcms import DataReader, Processor, PeakFinder
 
 
 def greetings():
@@ -41,18 +42,31 @@ def first_look_at_data():
 def testclient():
     chrom1 = omsc.Chrom()
     chrom1.find_peaks()
-    dfs = (omsc.get_df(chrom1.chrom), omsc.get_df(chrom1.picked_peaks))
+    dfs = (
+        (omsc.export_df(chrom1.chrom), "line"),
+        (omsc.export_df(chrom1.picked_peaks), "scatter"),
+    )
 
-    cp.plot_any_scatter(dfs)
+    cp.plot_any_df(dfs)
     plt.show()
 
-    # picker = oms.PeakPickerChromatogram()
-    # params = picker.getParameters()
-    # ic(params.asDict())
+    # for i, peak in enumerate(chrom1.picked_peaks):
+    #     if i == 1:
+    #         ic(peak)
 
     return
 
 
+def demo():
+    p = Processor.ChromatogramProcessor()
+    p.set_reader(DataReader.PyomenmsReader())
+    p.read_to_df(
+        "/Users/duc/Developer/aevoloop/gcms/.data/test_mzml/PS_R667_EST_3.mzML"
+    )
+    p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
+    p.find_peaks(p.df.chromatogram_og)
+
+
 if __name__ == "__main__":
     greetings()
-    testclient()
+    demo()
