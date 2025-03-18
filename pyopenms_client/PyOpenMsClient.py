@@ -26,6 +26,7 @@ class Exp:
         selfinit: bool = True,
     ) -> None:
         self.exp = MSExperiment()
+        self.mzml_file = None
 
         if mzml_file is None and testdata is True:
             try:
@@ -33,7 +34,7 @@ class Exp:
             except Exception as e:
                 raise ValueError(f"Error reading path '{self.__class__.TESTDATA}': {e}")
         elif mzml_file is None and testdata is False:
-            self.mzml_file = None
+            pass
         else:
             try:
                 self.mzml_file = mzml_file
@@ -57,6 +58,8 @@ class Exp:
 
     def extract_chrom(self) -> MSChromatogram | None:
         """Extracts a TIC (total intensity current)."""
+        if self.mzml_file is None:
+            return None
         if self.exp.getNrChromatograms() != 1:
             raise ValueError(
                 f"Number of chromatograms contained in mzML file: {self.exp.getNrChromatograms()}"
@@ -67,11 +70,14 @@ class Exp:
 
 class Chrom:
     """Adapter to MSChromatogram
+
     Extract a single chromatogram from a mzML file.
     Do peak-finding and peak-integration work."""
 
-    def __init__(self, mzml_file: pathlib.Path | None = None) -> None:
-        self.chrom: MSChromatogram = Exp(mzml_file).extract_chrom()
+    def __init__(
+        self, mzml_file: pathlib.Path | None = None, selfinit: bool = True, testdata:bool= True
+    ) -> None:
+        self.chrom: MSChromatogram = Exp(mzml_file,testdata=testdata, selfinit=selfinit).extract_chrom()
         self.picked_peaks = MSChromatogram()
         self.picker = PeakPickerChromatogram()
         return
@@ -102,7 +108,7 @@ class Chrom:
         return
 
 
-def get_df(chrom: MSChromatogram) -> DataFrame:
+def export_df(chrom: MSChromatogram) -> DataFrame:
     """Extract retention time and intensity and return as DataFrame"""
     try:
         rt, intensities = chrom.get_peaks()

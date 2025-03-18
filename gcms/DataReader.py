@@ -58,7 +58,7 @@ class PyomenmsReader(ChromDataReader):
                 f"file '{file_path} is not compatible with reader '{self.__class__}'"
             )
         chrom = omsc.Chrom(pathlib.Path(file_path))
-        return omsc.get_df(chrom.chrom)
+        return omsc.export_df(chrom.chrom)
 
     @property
     def supported_extensions(self) -> list[str]:
