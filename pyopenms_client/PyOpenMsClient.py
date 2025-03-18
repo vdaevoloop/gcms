@@ -75,9 +75,14 @@ class Chrom:
     Do peak-finding and peak-integration work."""
 
     def __init__(
-        self, mzml_file: pathlib.Path | None = None, selfinit: bool = True, testdata:bool= True
+        self,
+        mzml_file: pathlib.Path | None = None,
+        selfinit: bool = True,
+        testdata: bool = True,
     ) -> None:
-        self.chrom: MSChromatogram = Exp(mzml_file,testdata=testdata, selfinit=selfinit).extract_chrom()
+        self.chrom: MSChromatogram = Exp(
+            mzml_file, testdata=testdata, selfinit=selfinit
+        ).extract_chrom()
         self.picked_peaks = MSChromatogram()
         self.picker = PeakPickerChromatogram()
         return
@@ -106,6 +111,22 @@ class Chrom:
         except Exception as e:
             raise ValueError(f"Error finding peaks: {e}")
         return
+
+    def import_df(self, df: DataFrame) -> None:
+        """Converts a DF to a MSChromatogram
+        Args:
+            df: pandas DataFrame with columns 'retention_time', 'intensity'
+        Retuns:
+            None; MSChromatogram is stored in self.chrom
+        Raises:
+            ValueError: If df does not contain the two necessary columns
+        """
+        if "retention_time" not in df.columns or "intensity" not in df.columns:
+            raise ValueError(
+                "DataFrame does not contain the right columns 'retention_time', 'intensity'"
+            )
+        mschrom = MSChromatogram()
+        self.chrom = mschrom.set_peaks([df["retention_time"], df["intensity"]])
 
 
 def export_df(chrom: MSChromatogram) -> DataFrame:
