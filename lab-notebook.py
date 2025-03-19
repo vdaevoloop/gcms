@@ -65,6 +65,10 @@ def demo():
     )
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram_og)
+    peaks = p.df.peaks
+    dfs = ((p.df.chromatogram_og, "line"), (peaks, "scatter"))
+    cp.plot_any_df(dfs)
+    plt.show()
 
 
 if __name__ == "__main__":

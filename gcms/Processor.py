@@ -48,7 +48,7 @@ class ChromatogramProcessor:
             logging.error("Error in Processor.find_peaks(chrom): chrom is None")
             return
         if self.peak_finder is not None:
-            self.peak_finder.find_peaks(chrom)
+            self.df.peaks = self.peak_finder.find_peaks(chrom)
         else:
             logging.error("No ChromPeakFinder set, yet")
         return

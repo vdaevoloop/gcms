@@ -126,7 +126,8 @@ class Chrom:
                 "DataFrame does not contain the right columns 'retention_time', 'intensity'"
             )
         mschrom = MSChromatogram()
-        self.chrom = mschrom.set_peaks([df["retention_time"], df["intensity"]])
+        mschrom.set_peaks([df["retention_time"], df["intensity"]])
+        self.chrom = mschrom
 
 
 def export_df(chrom: MSChromatogram) -> DataFrame:

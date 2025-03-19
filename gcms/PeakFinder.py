@@ -14,7 +14,9 @@ class ChromPeakFinder(ABC):
         pass
 
     @abstractmethod
-    def find_peaks(self, chrom: pd.DataFrame | oms.MSChromatogram | None = None):
+    def find_peaks(
+        self, chrom: pd.DataFrame | oms.MSChromatogram | None = None
+    ) -> pd.DataFrame:
         """Takes a chromatogram and finds the find_peaks
         Returns:
             pandas DataFrame with 'retention_time' and 'intensity'
@@ -28,5 +30,11 @@ class PyopenmsChromPeakFinder(ChromPeakFinder):
     def __init__(self) -> None:
         super().__init__()
 
-    def find_peaks(self, chrom: pd.DataFrame | oms.MSChromatogram | None = None):
+    def find_peaks(
+        self, chrom: pd.DataFrame | oms.MSChromatogram | None = None
+    ) -> pd.DataFrame:
         mschrom = omsc.Chrom(testdata=False)
+        mschrom.import_df(chrom)
+        mschrom.find_peaks()
+
+        return omsc.export_df(mschrom.picked_peaks)
