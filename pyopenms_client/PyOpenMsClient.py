@@ -1,5 +1,8 @@
 from decimal import ExtendedContext
+from matplotlib.pyplot import axis
 from pandas import DataFrame
+import pandas as pd
+import numpy as np
 from pyopenms import (
     MSChromatogram,
     plotting,
@@ -131,12 +134,38 @@ class Chrom:
         self.chrom = mschrom
 
 
-def export_df(chrom: MSChromatogram) -> DataFrame:
+def export_df(chrom: MSChromatogram, peaks: MSChromatogram | None) -> list[DataFrame]:
     """Extract retention time and intensity and return as DataFrame"""
-    try:
-        rt, intensities = chrom.get_peaks()
-    except Exception as e:
-        logging.error(f"Error getting DataFrame from '{chrom}': {e}")
-        raise
 
-    return DataFrame({"retention_time": rt, "intensity": intensities})
+    df = []
+    chrom_df = read_peaks_to_df(chrom)
+    chrom_df["index"] = chrom_df.index
+    df.append(chrom_df)
+
+    if peaks is not None:
+        peaks_df = read_peaks_to_df(peaks)
+        df.append(
+            pd.merge(
+                peaks_df,
+                df[0][["index", "retention_time"]],
+                on="retention_time",
+                how="left",
+            )
+        )
+
+    return df
+
+
+def read_peaks_to_df(mschrom: MSChromatogram) -> DataFrame:
+    """Reads retention time and intensity to a DataFrame"""
+    try:
+        rt, intensities = mschrom.get_peaks()
+    except Exception as e:
+        logging.error(f"Error getting DataFrame from '{mschrom}': {e}")
+        raise
+    return DataFrame(
+        {
+            "retention_time": rt,
+            "intensity": intensities,
+        }
+    )

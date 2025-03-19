@@ -53,6 +53,18 @@ class ChromatogramProcessor:
             logging.error("No ChromPeakFinder set, yet")
         return
 
+    def find_peak_borders(self) -> None:
+        """Add peak borders to df.peaks
+
+        Raises:
+            ValueError: If columns can not be found.
+        """
+        if self.df.chromatogram_og is None or self.df.peaks is None:
+            raise ValueError(
+                f"Error finding peak borders with 'chromatogram': {self.df.chromatogram_og} and 'peaks': {self.df.peaks}\n Must not be None."
+            )
+        return PeakFinder.find_peak_borders(self.df.chromatogram_og, self.df.peaks)
+
 
 class ChromatogramDF:
     """Data class to hold DataFrames of original chromatogram, filtered chrom, peaks with borders, peak_area
@@ -60,7 +72,7 @@ class ChromatogramDF:
     Fields:
         chromatogram_og: original data as a pd.DataFrame[['index', 'retention_time', 'intensity']]
         chromatogram_filtered: filtered chromatogram as pd.DataFrame[['index', 'retention_time', 'intensity']]
-        peaks: peaks of a chromatogram as pd.DataFrame[['index', 'retention_time', 'intensity', 'left_border', 'right_border', 'area']]
+        peaks: peaks of a chromatogram as pd.DataFrame[['retention_time', 'intensity', 'left_border', 'right_border', 'area']]
         count_filter_iterations: Number of timex how often a filter was applied to chromatogram_filtered
     """
 
