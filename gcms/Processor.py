@@ -58,9 +58,9 @@ class ChromatogramDF:
     """Data class to hold DataFrames of original chromatogram, filtered chrom, peaks with borders, peak_area
 
     Fields:
-        chromatogram_og: original data as a pd.DataFrame[['index', 'retention_rate', 'intensity']]
-        chromatogram_filtered: filtered chromatogram as pd.DataFrame[['index', 'retention_rate', 'intensity']]
-        peaks: peaks of a chromatogram as pd.DataFrame[['index', 'retention_rate', 'intensity', 'left_border', 'right_border', 'area']]
+        chromatogram_og: original data as a pd.DataFrame[['index', 'retention_time', 'intensity']]
+        chromatogram_filtered: filtered chromatogram as pd.DataFrame[['index', 'retention_time', 'intensity']]
+        peaks: peaks of a chromatogram as pd.DataFrame[['index', 'retention_time', 'intensity', 'left_border', 'right_border', 'area']]
         count_filter_iterations: Number of timex how often a filter was applied to chromatogram_filtered
     """
 
