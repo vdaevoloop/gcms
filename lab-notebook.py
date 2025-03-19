@@ -69,9 +69,9 @@ def demo():
     )
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram_og)
-    peaks = p.df.peaks
     # dfs = ((p.df.chromatogram_og, "line"), (peaks, "scatter"))
     p.find_peak_borders()
+    ic(p.df.peaks)
 
 
 def add_indices():
@@ -82,5 +82,5 @@ def add_indices():
 
 if __name__ == "__main__":
     greetings()
-    testclient()
-    # demo()
+    # testclient()
+    demo()

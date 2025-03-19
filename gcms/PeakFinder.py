@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import pandas as pd
+import numpy as np
 import pyopenms as oms
 from pyopenms_client import PyOpenMsClient as omsc
 import logging
@@ -49,17 +50,16 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
         The found borders are added to 'peaks'. The modified 'peaks' DataFrame is returned.
 
     """
-    ic(chrom)
-    ic(peaks)
-    # widths, width_heights, left, right = scipy.signal.peak_widths(
-    #     chrom["intensity"], peaks["intensity"]
-    # )
-    # return pd.DataFrame(
-    #     {
-    #         "retention_time": signal["retention_time"],
-    #         "intensity": signal["intensity"],
-    #         "width_heights": width_heights,
-    #         "left_border": left,
-    #         "right_border": right,
-    #     }
-    # )
+    widths, width_heights, left, right = scipy.signal.peak_widths(
+        chrom["intensity"], peaks["index"]
+    )
+    left_border = []
+    right_border = []
+    for i in peaks.index:
+        left_border.append(int(np.floor(left[i])))
+        right_border.append(int(np.ceil(right[i])))
+    peaks["width"] = widths
+    peaks["width_height"] = width_heights
+    peaks["left_border"] = left_border
+    peaks["right_border"] = right_border
+    return peaks

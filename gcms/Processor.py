@@ -63,7 +63,9 @@ class ChromatogramProcessor:
             raise ValueError(
                 f"Error finding peak borders with 'chromatogram': {self.df.chromatogram_og} and 'peaks': {self.df.peaks}\n Must not be None."
             )
-        return PeakFinder.find_peak_borders(self.df.chromatogram_og, self.df.peaks)
+        self.df.peaks = PeakFinder.find_peak_borders(
+            self.df.chromatogram_og, self.df.peaks
+        )
 
 
 class ChromatogramDF:

@@ -144,7 +144,6 @@ def export_df(chrom: MSChromatogram, peaks: MSChromatogram | None) -> list[DataF
 
     if peaks is not None:
         peaks_df = read_peaks_to_df(peaks)
-        # TODO: match indices
         time_step = (
             chrom_df["retention_time"].iloc[0] - chrom_df["retention_time"].iloc[2]
         ) / 2
