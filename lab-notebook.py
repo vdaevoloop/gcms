@@ -51,7 +51,7 @@ def testclient():
         (peaks_df, "scatter"),
     )
 
-    cp.plot_any_df(dfs)
+    cp.plot_any_df(dfs, x="index")
     plt.show()
 
     # for i, peak in enumerate(chrom1.picked_peaks):
@@ -70,7 +70,7 @@ def demo():
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram_og)
     peaks = p.df.peaks
-    dfs = ((p.df.chromatogram_og, "line"), (peaks, "scatter"))
+    # dfs = ((p.df.chromatogram_og, "line"), (peaks, "scatter"))
     p.find_peak_borders()
 
 

@@ -49,8 +49,8 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
         The found borders are added to 'peaks'. The modified 'peaks' DataFrame is returned.
 
     """
-    ic(chrom.columns)
-    ic(peaks.columns)
+    ic(chrom)
+    ic(peaks)
     # widths, width_heights, left, right = scipy.signal.peak_widths(
     #     chrom["intensity"], peaks["intensity"]
     # )

@@ -144,14 +144,30 @@ def export_df(chrom: MSChromatogram, peaks: MSChromatogram | None) -> list[DataF
 
     if peaks is not None:
         peaks_df = read_peaks_to_df(peaks)
-        df.append(
-            pd.merge(
-                peaks_df,
-                df[0][["index", "retention_time"]],
-                on="retention_time",
-                how="left",
+        # TODO: match indices
+        time_step = (
+            chrom_df["retention_time"].iloc[0] - chrom_df["retention_time"].iloc[2]
+        ) / 2
+        peak_indices = []
+        current_peak = 0
+        last_peak = len(peaks_df["retention_time"])
+        last_chrom_point = len(chrom_df["retention_time"])
+        for i, chrom_rt in enumerate(chrom_df["retention_time"]):
+            if current_peak == last_chrom_point or current_peak == last_peak:
+                break
+            if (
+                chrom_rt
+                >= peaks_df["retention_time"].iloc[current_peak] - time_step / 2
+            ):
+                peak_indices.append(chrom_df["index"].iloc[i])
+                current_peak += 1
+
+        if len(peak_indices) != len(peaks_df["retention_time"]):
+            raise AssertionError(
+                f"Error indexing peaks DataFrame: length of indices:{len(peak_indices)} and retention time:{len(peaks_df['retention_time'])}"
             )
-        )
+        peaks_df["index"] = peak_indices
+        df.append(peaks_df)
 
     return df
 
