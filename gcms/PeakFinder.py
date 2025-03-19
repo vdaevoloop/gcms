@@ -51,7 +51,7 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
 
     """
     widths, width_heights, left, right = scipy.signal.peak_widths(
-        chrom["intensity"], peaks["index"]
+        chrom["intensity"], peaks["index"], rel_height=1.0
     )
     left_border = []
     right_border = []

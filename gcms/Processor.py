@@ -2,6 +2,7 @@ from pathlib import Path
 from gcms import DataReader, PeakFinder
 import logging
 import pandas as pd
+from icecream import ic
 
 
 class ChromatogramProcessor:
@@ -65,6 +66,25 @@ class ChromatogramProcessor:
             )
         self.df.peaks = PeakFinder.find_peak_borders(
             self.df.chromatogram_og, self.df.peaks
+        )
+
+    def create_peak_border_df(self) -> pd.DataFrame:
+        """Create a DataFrame from peak borders to be plotted"""
+        border_rt = []
+        border_intensity = []
+        if self.df.peaks is None or self.df.chromatogram_og is None:
+            raise ValueError(
+                f"Error creating peak border DataFrame for plotting: chrom is {type(self.df.chromatogram_og)}, peaks is {type(self.df.peaks)}"
+            )
+        for i in self.df.peaks.index:
+            m = self.df.chromatogram_og.iloc[self.df.peaks["left_border"].iloc[i]]
+            n = self.df.chromatogram_og.iloc[self.df.peaks["right_border"].iloc[i]]
+            border_rt.append(m["retention_time"])
+            border_intensity.append(m["intensity"])
+            border_rt.append(n["retention_time"])
+            border_intensity.append(n["intensity"])
+        return pd.DataFrame(
+            {"retention_time": border_rt, "intensity": border_intensity}
         )
 
 

@@ -69,9 +69,25 @@ def demo():
     )
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram_og)
-    # dfs = ((p.df.chromatogram_og, "line"), (peaks, "scatter"))
     p.find_peak_borders()
+    border_df = p.create_peak_border_df()
+    dfs = (
+        (p.df.chromatogram_og, "line"),
+        (p.df.peaks, "scatter"),
+        (border_df, "scatter"),
+    )
+    # cp.plot_any_df(dfs)
+    # plt.show()
+    ic(p.df.chromatogram_og)
     ic(p.df.peaks)
+    ic(border_df)
+
+    ic(p.df.chromatogram_og.iloc[42])
+    ic(p.df.chromatogram_og.iloc[43])
+    ic(p.df.chromatogram_og.iloc[44])
+    ic(p.df.chromatogram_og.iloc[45])
+    ic(p.df.chromatogram_og.iloc[46])
+    ic(p.df.chromatogram_og.iloc[47])
 
 
 def add_indices():
