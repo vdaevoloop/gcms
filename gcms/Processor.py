@@ -3,6 +3,7 @@ from gcms import DataReader, PeakFinder
 import logging
 import pandas as pd
 from icecream import ic
+import scipy
 
 
 class ChromatogramProcessor:
@@ -86,6 +87,34 @@ class ChromatogramProcessor:
         return pd.DataFrame(
             {"retention_time": border_rt, "intensity": border_intensity}
         )
+
+    # HACK:
+    def filter_savgol(self) -> None:
+        """Apply Savgol and replace df.chromatogram_og"""
+        intensity_filtered = scipy.signal.savgol_filter(
+            self.df.chromatogram_og["intensity"], 5, 2
+        )
+        self.df.chromatogram_og["intensity"] = intensity_filtered
+
+    # HACK:
+    def integral(self) -> None:
+        """Naive integration"""
+        area = []
+        left_border = self.df.peaks["left_border"]
+        right_border = self.df.peaks["right_border"]
+        peaks = self.df.peaks["intensity"]
+        chrom_rt = self.df.chromatogram_og["retention_time"]
+        chrom_intensity = self.df.chromatogram_og["intensity"]
+        for i in self.df.peaks.index:
+            y = []
+            y.append(chrom_intensity.iloc[left_border[i]])
+            y.append(peaks.iloc[i])
+            y.append(chrom_intensity.iloc[right_border[i]])
+            area.append(scipy.integrate.trapezoid(y))
+        if len(area) != len(peaks):
+            raise AssertionError()
+
+        self.df.peaks["area"] = area
 
 
 class ChromatogramDF:
