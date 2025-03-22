@@ -1,5 +1,8 @@
 from decimal import ExtendedContext
+from matplotlib.pyplot import axis
 from pandas import DataFrame
+import pandas as pd
+import numpy as np
 from pyopenms import (
     MSChromatogram,
     plotting,
@@ -9,6 +12,7 @@ from pyopenms import (
 )
 import logging
 import pathlib
+from icecream import ic
 
 
 class Exp:
@@ -130,12 +134,53 @@ class Chrom:
         self.chrom = mschrom
 
 
-def export_df(chrom: MSChromatogram) -> DataFrame:
+def export_df(chrom: MSChromatogram, peaks: MSChromatogram | None) -> list[DataFrame]:
     """Extract retention time and intensity and return as DataFrame"""
-    try:
-        rt, intensities = chrom.get_peaks()
-    except Exception as e:
-        logging.error(f"Error getting DataFrame from '{chrom}': {e}")
-        raise
 
-    return DataFrame({"retention_time": rt, "intensity": intensities})
+    df = []
+    chrom_df = read_peaks_to_df(chrom)
+    chrom_df["index"] = chrom_df.index
+    df.append(chrom_df)
+
+    if peaks is not None:
+        peaks_df = read_peaks_to_df(peaks)
+        time_step = (
+            chrom_df["retention_time"].iloc[0] - chrom_df["retention_time"].iloc[2]
+        ) / 2
+        peak_indices = []
+        current_peak = 0
+        last_peak = len(peaks_df["retention_time"])
+        last_chrom_point = len(chrom_df["retention_time"])
+        for i, chrom_rt in enumerate(chrom_df["retention_time"]):
+            if current_peak == last_chrom_point or current_peak == last_peak:
+                break
+            if (
+                chrom_rt
+                >= peaks_df["retention_time"].iloc[current_peak] - time_step / 2
+            ):
+                peak_indices.append(chrom_df["index"].iloc[i])
+                current_peak += 1
+
+        if len(peak_indices) != len(peaks_df["retention_time"]):
+            raise AssertionError(
+                f"Error indexing peaks DataFrame: length of indices:{len(peak_indices)} and retention time:{len(peaks_df['retention_time'])}"
+            )
+        peaks_df["index"] = peak_indices
+        df.append(peaks_df)
+
+    return df
+
+
+def read_peaks_to_df(mschrom: MSChromatogram) -> DataFrame:
+    """Reads retention time and intensity to a DataFrame"""
+    try:
+        rt, intensities = mschrom.get_peaks()
+    except Exception as e:
+        logging.error(f"Error getting DataFrame from '{mschrom}': {e}")
+        raise
+    return DataFrame(
+        {
+            "retention_time": rt,
+            "intensity": intensities,
+        }
+    )

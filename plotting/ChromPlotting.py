@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import seaborn as sns
+from icecream import ic
 
 
 def plot_any_df(
