@@ -40,13 +40,12 @@ class ChromTrapezoidIntegrator(ChromIntegrator):
         rb = peaks["right_border"]
         for i in peaks.index:
             y = []
-            for intensity in chrom["intensity"].iloc[lb.iloc[i]:rb.iloc[i]+1]:
+            for intensity in chrom["intensity"].iloc[lb.iloc[i] : rb.iloc[i] + 1]:
                 y.append(intensity)
                 try:
                     peaks["area"].iloc[i] = scipy.integrate.trapezoid(y)
                 except Exception as e:
-                    logging.error(f"Error integrating peak area at peak index: {i}, intensity: {peaks["intensity"].iloc[i]}, left border: {peaks["left_border"].iloc[i]}, right border: {peaks["right_border"].iloc[i]}")
+                    logging.error(
+                        f"Error integrating peak area at peak index: {i}, intensity: {peaks["intensity"].iloc[i]}, left border: {peaks["left_border"].iloc[i]}, right border: {peaks["right_border"].iloc[i]}"
+                    )
                     raise e
-        
-        
-

@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyopenms_client import PyOpenMsClient as omsc
 from plotting import ChromPlotting as cp
-from gcms import DataReader, Processor, PeakFinder
+from gcms import DataReader, Processor, PeakFinder, Integrator
 import numpy as np
 
 
@@ -95,8 +95,10 @@ def demo():
     #             p.df.peaks["intensity"].iloc[i],
     #             p.df.peaks["intensity"].iloc[min(i + 1, len(p.df.peaks["intensity"]))],
     #         )
-    cp.plot_any_df(dfs)
-    plt.show()
+    # cp.plot_any_df(dfs)
+    # plt.show()
+    p.set_integrator(Integrator.ChromTrapezoidIntegrator())
+
 
 
 def add_indices():

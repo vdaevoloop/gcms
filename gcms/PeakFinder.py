@@ -86,9 +86,8 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
         The found borders are added to 'peaks'. The modified 'peaks' DataFrame is returned.
 
     """
-    chrom_intensity = chrom["intensity"]
     widths, _, _, _ = scipy.signal.peak_widths(
-        chrom_intensity, peaks["index"], rel_height=1.0, wlen=11
+        chrom["intensity"], peaks["index"], rel_height=1.0, wlen=11
     )
 
     if len(widths) != len(peaks["index"]):
@@ -98,10 +97,10 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
 
     for i in peaks.index:
         for k in [-1, 1]:
-            adjust_neighbor(chrom_intensity, peaks, i, k)
+            adjust_neighbor(chrom, peaks, i, k)
 
     widths, width_heights, left, right = scipy.signal.peak_widths(
-        chrom_intensity, peaks["index"], rel_height=1.0, wlen=11
+        chrom["intensity"], peaks["index"], rel_height=1.0, wlen=11
     )
 
     for i in peaks.index:
@@ -122,30 +121,17 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
     return peaks
 
 
-def adjust_neighbor(
-    chrom: pd.DataFrame | pd.Series, peaks: pd.DataFrame, i: int, k: int
-) -> None:
+def adjust_neighbor(chrom: pd.DataFrame, peaks: pd.DataFrame, i: int, k: int) -> None:
     """Adjusts the intensity of a chromatogram next to a peak for the scipy algorithm to calculate a non-zero prominence"""
-    ind = peaks["index"].iloc[i]
-    if k == -1:
-        diff = chrom.iloc[ind] - chrom.iloc[max(0, ind + k)]
-    else:
-        diff = (
-            chrom.iloc[ind]
-            - chrom.iloc[
-                min(
-                    len(peaks["intensity"]),
-                    ind + k,
-                )
-            ]
-        )
-    # HACK:
-    # if diff < 0:
-    #     raise ValueError(
-    #         f"Error adjusting peak neighbor. Neighbor is larger than peak at retention time: {peaks['retention_time'].iloc[i]}"
-    #     )
-    if diff <= peaks["intensity"].iloc[i] * 0.2:
-        if ind + k == 0 or ind + k == len(peaks.index) - 1:
-            chrom.iloc[ind + k] = peaks["intensity"].iloc[i] / 2
+    ind = int(peaks.at[i, "index"])
+    neighbor_indx = max(0, min(len(chrom) - 1, ind + k))
+    diff = chrom.at[ind, "intensity"] - chrom.at[neighbor_indx, "intensity"]
+
+    if diff <= 0.2 * peaks.at[i, "intensity"]:
+        if neighbor_indx == 0 or neighbor_indx == len(chrom) - 1:
+            chrom.at[neighbor_indx, "intensity"] = peaks.at[i, "intensity"] / 2
         else:
-            chrom.iloc[ind + k] = (chrom.iloc[ind + k] + chrom.iloc[ind + 2 * k]) / 2
+            next_indx = neighbor_indx + k
+            chrom.at[neighbor_indx, "intensity"] = (
+                chrom.at[neighbor_indx, "intensity"] + chrom.at[next_indx, "intensity"]
+            ) / 2
