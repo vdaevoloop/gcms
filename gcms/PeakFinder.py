@@ -106,7 +106,7 @@ def find_peak_borders(chrom: pd.DataFrame, peaks: pd.DataFrame) -> pd.DataFrame:
 
     for i in peaks.index:
         if widths[i] == 0:
-            print(
+            logging.error(
                 f"Width with value 0 at retention time: {peaks['retention_time'].iloc[i]}"
             )
 

@@ -79,13 +79,14 @@ def demo():
         (border_df, "scatter"),
     )
 
-    max_area = p.df.peaks["area"].max()
-    area_norm = pd.DataFrame(
-        {
-            "retention_time": p.df.peaks["retention_time"],
-            "area_normed": p.df.peaks["area"] / max_area,
-        }
-    )
+    # max_area = p.df.peaks["area"].max()
+    # area_norm = pd.DataFrame(
+    #     {
+    #         "retention_time": p.df.peaks["retention_time"],
+    #         "area_normed": p.df.peaks["area"] / max_area,
+    #     }
+    # )
+    #
     # area_norm.to_csv("out.csv")
     # for i in p.df.peaks.index:
     #     if p.df.peaks["width"].iloc[i] == 0:
@@ -95,8 +96,10 @@ def demo():
     #             p.df.peaks["intensity"].iloc[i],
     #             p.df.peaks["intensity"].iloc[min(i + 1, len(p.df.peaks["intensity"]))],
     #         )
-    cp.plot_any_df(dfs)
-    plt.show()
+    # cp.plot_any_df(dfs)
+    # plt.show()
+
+    ic(p.df.chromatogram_og["intensity"].iloc[:2])
 
 
 def add_indices():
