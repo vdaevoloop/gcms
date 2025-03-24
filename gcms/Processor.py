@@ -1,5 +1,5 @@
 from pathlib import Path
-from gcms import DataReader, PeakFinder
+from gcms import DataReader, PeakFinder, Integrator
 import logging
 import pandas as pd
 from icecream import ic
@@ -27,6 +27,9 @@ class ChromatogramProcessor:
     def set_reader(self, reader: DataReader.ChromDataReader) -> None:
         self.reader = reader
         return
+
+    def set_integrator(self, integrator: Integrator.ChromIntegrator)-> None:
+        self.integrator = integrator
 
     def read_to_df(self, file_path: str | Path) -> None:
         """Using the reader to import chromatogram to df.chromatogram_og"""
