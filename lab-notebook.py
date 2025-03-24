@@ -65,7 +65,7 @@ def demo():
     p = Processor.ChromatogramProcessor()
     p.set_reader(DataReader.PyomenmsReader())
     p.read_to_df(
-        "/Users/duc/Developer/aevoloop/gcms/.data/test_mzml/PS_R667_EST_3.mzML"
+        ".data/test_mzml/PS_R667_EST_3.mzML"
     )
     p.filter_savgol()
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
