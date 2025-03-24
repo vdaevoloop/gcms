@@ -71,7 +71,6 @@ def demo():
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram_og)
     p.find_peak_borders()
-    p.integral()
     border_df = p.create_peak_border_df()
     dfs = (
         (p.df.chromatogram_og, "line"),
@@ -79,13 +78,13 @@ def demo():
         (border_df, "scatter"),
     )
 
-    max_area = p.df.peaks["area"].max()
-    area_norm = pd.DataFrame(
-        {
-            "retention_time": p.df.peaks["retention_time"],
-            "area_normed": p.df.peaks["area"] / max_area,
-        }
-    )
+    # max_area = p.df.peaks["area"].max()
+    # area_norm = pd.DataFrame(
+    #     {
+    #         "retention_time": p.df.peaks["retention_time"],
+    #         "area_normed": p.df.peaks["area"] / max_area,
+    #     }
+    # )
     # area_norm.to_csv("out.csv")
     # for i in p.df.peaks.index:
     #     if p.df.peaks["width"].iloc[i] == 0:
@@ -98,6 +97,9 @@ def demo():
     cp.plot_any_df(dfs)
     plt.show()
     p.set_integrator(Integrator.ChromTrapezoidIntegrator())
+    p.integrate_peak_area()
+    p.normalize_integral()
+    ic(p.df.peaks)
 
 
 

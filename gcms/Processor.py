@@ -94,7 +94,11 @@ class ChromatogramProcessor:
     def integrate_peak_area(self) -> None:
         """Calculates area beneath peaks and saves areas to df.peaks"""
         self.integrator.integrate(self.df.chromatogram_og, self.df.peaks)
-        ic(self.df.peaks)
+        return
+
+    def normalize_integral(self) -> None:
+        self.integrator.norm_area(self.df.peaks)
+        return
 
     # HACK:
     def filter_savgol(self) -> None:
