@@ -35,4 +35,11 @@ class ChromTrapezoidIntegrator(ChromIntegrator):
             raise ValueError("error integrating peak area: peak borders are missing")
 
         # TODO: Append all data points from left_border to right_border
-        # for i in peaks.index:
+        lb = peaks["left_border"]
+        rb = peaks["right_border"]
+        for i in peaks.index:
+            y=[]
+            for intens in chrom["intensity"].iloc[] 
+
+
+
