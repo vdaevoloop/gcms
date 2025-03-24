@@ -43,23 +43,21 @@ class PyopenmsChromPeakFinder(ChromPeakFinder):
         index_corr = []
         intensity_corr = []
 
+        chrom_len = len(chrom) - 1
+
         for k in peak_df.index:
-            i = peak_df["index"].iloc[k]
-            max_intensity = 0  # peak_df["intensity"].iloc[k]
+            i = int(peak_df.at[k, "index"])
+            max_intensity = chrom.at[i, "intensity"]  
             max_index = i
-            for j in range(2):
-                if chrom["intensity"].iloc[max(0, i - 2 + j)] > max_intensity:
-                    max_intensity = chrom["intensity"].iloc[max(0, i - 2 + j)]
-                    max_index = max(0, i - 2 + j)
-                if (
-                    chrom["intensity"].iloc[min(len(chrom["intensity"] - 1), i + 2 - j)]
-                    > max_intensity
-                ):
-                    max_intensity = chrom["intensity"].iloc[
-                        min(len(chrom["intensity"] - 1), i + 2 - j)
-                    ]
-                    max_index = min(len(chrom["intensity"] - 1), i + 2 - j)
-            rt_corr.append(chrom["retention_time"].iloc[max_index])
+
+            for j in range(-2, 3):
+                check_idx = max(0, min(chrom_len, i + j))
+                check_intensity = chrom.at[check_idx, "intensity"]
+                if check_intensity > max_intensity:
+                    max_intensity = check_intensity
+                    max_index = check_idx
+
+            rt_corr.append(chrom.at[max_index, "retention_time"])
             index_corr.append(max_index)
             intensity_corr.append(max_intensity)
 
