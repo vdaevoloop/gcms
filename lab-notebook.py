@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pyopenms_client import PyOpenMsClient as omsc
 from plotting import ChromPlotting as cp
-from gcms import DataReader, Processor, PeakFinder
+from gcms import DataReader, Processor, PeakFinder, Integrator
 import numpy as np
 
 
@@ -64,14 +64,11 @@ def testclient():
 def demo():
     p = Processor.ChromatogramProcessor()
     p.set_reader(DataReader.PyomenmsReader())
-    p.read_to_df(
-        "/Users/duc/Developer/aevoloop/gcms/.data/test_mzml/PS_R667_EST_3.mzML"
-    )
+    p.read_to_df(".data/test_mzml/PS_R667_EST_3.mzML")
     p.filter_savgol()
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram_og)
     p.find_peak_borders()
-    p.integral()
     border_df = p.create_peak_border_df()
     dfs = (
         (p.df.chromatogram_og, "line"),
@@ -86,7 +83,6 @@ def demo():
     #         "area_normed": p.df.peaks["area"] / max_area,
     #     }
     # )
-    #
     # area_norm.to_csv("out.csv")
     # for i in p.df.peaks.index:
     #     if p.df.peaks["width"].iloc[i] == 0:
@@ -96,10 +92,12 @@ def demo():
     #             p.df.peaks["intensity"].iloc[i],
     #             p.df.peaks["intensity"].iloc[min(i + 1, len(p.df.peaks["intensity"]))],
     #         )
-    # cp.plot_any_df(dfs)
-    # plt.show()
-
-    ic(p.df.chromatogram_og["intensity"].iloc[:2])
+    cp.plot_any_df(dfs)
+    plt.show()
+    p.set_integrator(Integrator.ChromTrapezoidIntegrator())
+    p.integrate_peak_area()
+    p.normalize_integral()
+    ic(p.df.peaks)
 
 
 def add_indices():
