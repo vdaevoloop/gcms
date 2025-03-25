@@ -67,11 +67,11 @@ def demo():
     p.read_to_df(".data/test_mzml/PS_R667_EST_3.mzML")
     p.filter_savgol()
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
-    p.find_peaks(p.df.chromatogram_og)
+    p.find_peaks(p.df.chromatogram)
     p.find_peak_borders()
     border_df = p.create_peak_border_df()
     dfs = (
-        (p.df.chromatogram_og, "line"),
+        (p.df.chromatogram, "line"),
         (p.df.peaks, "scatter"),
         (border_df, "scatter"),
     )
