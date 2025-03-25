@@ -1,5 +1,5 @@
 from pathlib import Path
-from gcms import DataReader, PeakFinder
+from gcms import DataReader, PeakFinder, Integrator
 import logging
 import pandas as pd
 from icecream import ic
@@ -28,6 +28,14 @@ class ChromatogramProcessor:
         self.reader = reader
         return
 
+    def set_peak_finder(self, peak_finder: PeakFinder.ChromPeakFinder) -> None:
+        """Dependency injection of a peak finder"""
+        self.peak_finder = peak_finder
+        return
+
+    def set_integrator(self, integrator: Integrator.ChromIntegrator) -> None:
+        self.integrator = integrator
+
     def read_to_df(self, file_path: str | Path) -> None:
         """Using the reader to import chromatogram to df.chromatogram_og"""
 
@@ -37,11 +45,6 @@ class ChromatogramProcessor:
             logging.error(
                 f"A reader must be set in {self.__class__} using read_to_df()"
             )
-        return
-
-    def set_peak_finder(self, peak_finder: PeakFinder.ChromPeakFinder) -> None:
-        """Dependency injection of a peak finder"""
-        self.peak_finder = peak_finder
         return
 
     def find_peaks(self, chrom: pd.DataFrame | None) -> None:
@@ -87,6 +90,15 @@ class ChromatogramProcessor:
         return pd.DataFrame(
             {"retention_time": border_rt, "intensity": border_intensity}
         )
+
+    def integrate_peak_area(self) -> None:
+        """Calculates area beneath peaks and saves areas to df.peaks"""
+        self.integrator.integrate(self.df.chromatogram_og, self.df.peaks)
+        return
+
+    def normalize_integral(self) -> None:
+        self.integrator.norm_area(self.df.peaks)
+        return
 
     # HACK:
     def filter_savgol(self) -> None:
