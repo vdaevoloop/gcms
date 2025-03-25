@@ -130,7 +130,12 @@ class ChromatogramDF:
         self.chromatogram_filtered: pd.DataFrame | None = None
         self.peaks: pd.DataFrame | None = None
         self.count_filter_iterations: int = 0
+        self.post_processed: None | pd.DataFrame = None
         return
 
     def set_chromatogram_og(self, df):
         self.chromatogram_og = df
+
+
+class PostProcessing:
+    """Collection of post processing methods"""
