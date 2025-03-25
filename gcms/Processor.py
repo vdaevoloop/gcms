@@ -146,5 +146,36 @@ class ChromatogramDF:
         self.chromatogram = df
 
 
-class PostProcessing:
-    """Collection of post processing methods"""
+# TODO:
+def calc_ratio_total_area(cdf: ChromatogramDF):
+    """Takes the largest 70 peaks and calculates the ratio of each peaks area compqared to the total area of largest peaks."""
+    pass
+
+
+def get_sample(cdf: ChromatogramDF, skip_largest: bool = True) -> pd.DataFrame | None:
+    """Get the basis for recursion"""
+
+    if cdf.peaks is None:
+        logging.error("Error getting samples for recursion: peaks DF is none")
+        return None
+    peaks = cdf.peaks.copy(deep=True)
+    if peaks is cdf.peaks:
+        raise AssertionError("Same object")
+
+    if skip_largest:
+        peaks = peaks.drop(index=peaks["intensity"].idxmax())
+
+    intensities = peaks["intensity"]
+    threshold = (intensities.max() + intensities.min()) / 2
+    index = []
+    intensity = []
+    rt = []
+
+    for i in cdf.peaks.index:
+        if cdf.peaks.at[i, "intensity"] > threshold:
+            index.append(cdf.peaks.at[i, "index"])
+            intensity.append(cdf.peaks.at[i, "intensity"])
+            rt.append(cdf.peaks.at[i, "retention_time"])
+    df = pd.DataFrame({"index": index, "intensity": intensity, "retention_time": rt})
+    ic(df)
+    return None

@@ -54,17 +54,13 @@ def testclient():
     cp.plot_any_df(dfs, x="index")
     plt.show()
 
-    # for i, peak in enumerate(chrom1.picked_peaks):
-    #     if i == 1:
-    #         ic(peak)
-
     return
 
 
 def demo():
     p = Processor.ChromatogramProcessor()
     p.set_reader(DataReader.PyomenmsReader())
-    p.read_to_df(".data/test_mzml/PS_R667_EST_3.mzML")
+    p.read_to_df(".data/test_mzml/Ak_35_EtOH-ext_2x_recryst_Et_est_IS.mzML")
     p.filter_savgol()
     p.set_peak_finder(PeakFinder.PyopenmsChromPeakFinder())
     p.find_peaks(p.df.chromatogram)
@@ -92,23 +88,13 @@ def demo():
     #             p.df.peaks["intensity"].iloc[i],
     #             p.df.peaks["intensity"].iloc[min(i + 1, len(p.df.peaks["intensity"]))],
     #         )
-    # cp.plot_any_df(dfs)
-    # plt.show()
     p.set_integrator(Integrator.ChromTrapezoidIntegrator())
     p.integrate_peak_area()
     p.normalize_integral()
-    ic(
-        p.df.peaks.iloc[0:15][
-            [
-                "index",
-                "retention_time",
-                "intensity",
-                "left_border",
-                "right_border",
-                "area_norm",
-            ]
-        ]
-    )
+
+    Processor.get_sample(p.df)
+    # cp.plot_any_df(dfs)
+    # plt.show()
 
 
 def add_indices():
