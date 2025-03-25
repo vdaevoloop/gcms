@@ -92,12 +92,23 @@ def demo():
     #             p.df.peaks["intensity"].iloc[i],
     #             p.df.peaks["intensity"].iloc[min(i + 1, len(p.df.peaks["intensity"]))],
     #         )
-    cp.plot_any_df(dfs)
-    plt.show()
+    # cp.plot_any_df(dfs)
+    # plt.show()
     p.set_integrator(Integrator.ChromTrapezoidIntegrator())
     p.integrate_peak_area()
     p.normalize_integral()
-    ic(p.df.peaks)
+    ic(
+        p.df.peaks.iloc[0:15][
+            [
+                "index",
+                "retention_time",
+                "intensity",
+                "left_border",
+                "right_border",
+                "area_norm",
+            ]
+        ]
+    )
 
 
 def add_indices():
