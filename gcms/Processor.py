@@ -93,15 +93,23 @@ class ChromatogramProcessor:
 
     def integrate_peak_area(self) -> None:
         """Calculates area beneath peaks and saves areas to df.peaks"""
-        if self.integrator is None:
-            logging.error("Must initialize integrator first")
+        if (
+            self.integrator is None
+            or self.df.chromatogram is None
+            or self.df.peaks is None
+        ):
+            logging.error(
+                f"Error integrating peak area. Check if objects are not initialized: integrator: {type(self.integrator)}, chromatogram: {type(self.df.chromatogram)}, peaks: {type(self.df.peaks)}"
+            )
             return
         self.integrator.integrate(self.df.chromatogram, self.df.peaks)
         return
 
     def normalize_integral(self) -> None:
-        if self.integrator is None:
-            logging.error("Must initialize integrator first")
+        if self.integrator is None or self.df.peaks is None:
+            logging.error(
+                f"Error integrating peak area. Check if objects are not initialized: integrator: {type(self.integrator)},  peaks: {type(self.df.peaks)}"
+            )
             return
         self.integrator.norm_area(self.df.peaks)
         return
