@@ -93,10 +93,16 @@ class ChromatogramProcessor:
 
     def integrate_peak_area(self) -> None:
         """Calculates area beneath peaks and saves areas to df.peaks"""
+        if self.integrator is None:
+            logging.error("Must initialize integrator first")
+            return
         self.integrator.integrate(self.df.chromatogram_og, self.df.peaks)
         return
 
     def normalize_integral(self) -> None:
+        if self.integrator is None:
+            logging.error("Must initialize integrator first")
+            return
         self.integrator.norm_area(self.df.peaks)
         return
 
@@ -107,26 +113,6 @@ class ChromatogramProcessor:
             self.df.chromatogram_og["intensity"], 5, 2
         )
         self.df.chromatogram_og["intensity"] = intensity_filtered
-
-    # HACK:
-    def integral(self) -> None:
-        """Naive integration"""
-        area = []
-        left_border = self.df.peaks["left_border"]
-        right_border = self.df.peaks["right_border"]
-        peaks = self.df.peaks["intensity"]
-        chrom_rt = self.df.chromatogram_og["retention_time"]
-        chrom_intensity = self.df.chromatogram_og["intensity"]
-        for i in self.df.peaks.index:
-            y = []
-            y.append(chrom_intensity.iloc[left_border[i]])
-            y.append(peaks.iloc[i])
-            y.append(chrom_intensity.iloc[right_border[i]])
-            area.append(scipy.integrate.trapezoid(y))
-        if len(area) != len(peaks):
-            raise AssertionError()
-
-        self.df.peaks["area"] = area
 
 
 class ChromatogramDF:
