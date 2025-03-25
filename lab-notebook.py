@@ -8,6 +8,7 @@ from pyopenms_client import PyOpenMsClient as omsc
 from plotting import ChromPlotting as cp
 from gcms import DataReader, Processor, PeakFinder, Integrator
 import numpy as np
+from scipy.optimize import curve_fit
 
 
 def greetings():
@@ -93,8 +94,8 @@ def demo():
     p.normalize_integral()
 
     Processor.get_sample(p.df)
-    # cp.plot_any_df(dfs)
-    # plt.show()
+    cp.plot_any_df(dfs)
+    plt.show()
 
 
 def add_indices():
@@ -103,7 +104,58 @@ def add_indices():
     return
 
 
+def func(x, a, b, c, d, e):
+    return a * x**4 + b * x**3 + c * x**2 + d * x + e
+
+
+def calc_poly():
+    data = {
+        "rt": [
+            463,
+            508,
+            548,
+            583,
+            613,
+            680,
+            736,
+            763,
+            789,
+            815,
+            890,
+            965,
+            1045,
+            1153,
+            1303,
+            1398,
+            1514,
+        ],
+        "intensity": [
+            119000,
+            223000,
+            330000,
+            340000,
+            390000,
+            480000,
+            745000,
+            785000,
+            775000,
+            730000,
+            600000,
+            530000,
+            490000,
+            398000,
+            204000,
+            140000,
+            98000,
+        ],
+    }
+
+    popt, pcov = curve_fit(func, data["rt"], data["intensity"])
+    ic(popt)
+
+
 if __name__ == "__main__":
     greetings()
     # testclient()
-    demo()
+    # demo()
+    calc_poly()
