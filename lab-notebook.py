@@ -8,7 +8,51 @@ from pyopenms_client import PyOpenMsClient as omsc
 from plotting import ChromPlotting as cp
 from gcms import DataReader, Processor, PeakFinder, Integrator
 import numpy as np
+import scipy
 from scipy.optimize import curve_fit
+import seaborn as sns
+
+
+data = {
+    "rt": [
+        463,
+        508,
+        548,
+        583,
+        613,
+        680,
+        736,
+        763,
+        789,
+        815,
+        890,
+        965,
+        1045,
+        1153,
+        1303,
+        1398,
+        1514,
+    ],
+    "intensity": [
+        119000,
+        223000,
+        330000,
+        340000,
+        390000,
+        480000,
+        745000,
+        785000,
+        775000,
+        730000,
+        600000,
+        530000,
+        490000,
+        398000,
+        204000,
+        140000,
+        98000,
+    ],
+}
 
 
 def greetings():
@@ -73,29 +117,28 @@ def demo():
         (border_df, "scatter"),
     )
 
-    # max_area = p.df.peaks["area"].max()
-    # area_norm = pd.DataFrame(
-    #     {
-    #         "retention_time": p.df.peaks["retention_time"],
-    #         "area_normed": p.df.peaks["area"] / max_area,
-    #     }
-    # )
-    # area_norm.to_csv("out.csv")
-    # for i in p.df.peaks.index:
-    #     if p.df.peaks["width"].iloc[i] == 0:
-    #         ic(
-    #             p.df.peaks["retention_time"].iloc[i],
-    #             p.df.peaks["intensity"].iloc[max(0, i - 1)],
-    #             p.df.peaks["intensity"].iloc[i],
-    #             p.df.peaks["intensity"].iloc[min(i + 1, len(p.df.peaks["intensity"]))],
-    #         )
     p.set_integrator(Integrator.ChromTrapezoidIntegrator())
     p.integrate_peak_area()
     p.normalize_integral()
 
-    Processor.get_sample(p.df)
-    cp.plot_any_df(dfs)
-    plt.show()
+    df = Processor.get_sample(p.df)
+    popt = Processor.fit_model(df["retention_time"], df["intensity"])
+
+    # para_df, _ = curve_fit(func_three, df["retention_time"], df["intensity"])
+    # para_test, _ = curve_fit(func_three, data["rt"], data["intensity"])
+    # ic(para_df)
+    # ic(para_test)
+
+    # fig, ax = plt.subplots()
+    # sns.lineplot(data=data, x="rt", y="intensity")
+    # sns.lineplot(data=df, x="retention_time", y="intensity")
+    # plt.show()
+
+    # cp.plot_any_df(dfs)
+    # plt.show()
+
+    data_skew = scipy.stats.skewnorm.rvs(a=4, loc=50, scale=15, size=200)
+    ic(data_skew)
 
 
 def add_indices():
@@ -106,6 +149,18 @@ def add_indices():
 
 def func(x, a, b, c, d, e):
     return a * x**4 + b * x**3 + c * x**2 + d * x + e
+
+
+def func_three(x, a, b, c, d):
+    return a * x**3 + b * x**2 + c * x + d
+
+
+def func_quad(x, a, b, c):
+    return a * x**2 + b * x + c
+
+
+def func_five(x, a1, a2, a3, a4, a5, a6):
+    return a1 * x**5 + a2 * x**4 + a3 * x**3 + a4 * x**2 + a5 * x + a6
 
 
 def calc_poly():
@@ -151,11 +206,10 @@ def calc_poly():
     }
 
     popt, pcov = curve_fit(func, data["rt"], data["intensity"])
-    ic(popt)
 
 
 if __name__ == "__main__":
     greetings()
     # testclient()
-    # demo()
+    demo()
     calc_poly()

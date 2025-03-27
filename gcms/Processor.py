@@ -3,6 +3,7 @@ from gcms import DataReader, PeakFinder, Integrator
 import logging
 import pandas as pd
 from icecream import ic
+import numpy as np
 import scipy
 
 
@@ -171,11 +172,29 @@ def get_sample(cdf: ChromatogramDF, skip_largest: bool = True) -> pd.DataFrame |
     intensity = []
     rt = []
 
-    for i in cdf.peaks.index:
-        if cdf.peaks.at[i, "intensity"] > threshold:
+    for i in peaks.index:
+        if peaks.at[i, "intensity"] > threshold:
             index.append(cdf.peaks.at[i, "index"])
             intensity.append(cdf.peaks.at[i, "intensity"])
             rt.append(cdf.peaks.at[i, "retention_time"])
     df = pd.DataFrame({"index": index, "intensity": intensity, "retention_time": rt})
-    ic(df)
-    return None
+    return df
+
+
+def func(x, a1, a2, a3, a4, a5) -> int:
+    """Polynomial function"""
+    return a1 * x**4 + a2 * x**3 + a3 * x**2 + a4 * x + a5
+
+
+def fit_model(x, y) -> np.ndarray:
+    """Returns parameters"""
+    rt = x.to_list()
+    intensity = y.to_list()
+
+    popt, _ = scipy.optimize.curve_fit(func, rt, intensity)
+    return popt
+
+
+def calc_predict(x: float, a: np.ndarray) -> int:
+    """Calc intensity with parameter array a"""
+    return func(x, a[0], a[1], a[2], a[3], a[4])
