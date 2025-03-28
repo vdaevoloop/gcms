@@ -1,0 +1,70 @@
+gcms package
+============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   gcms.plotting
+   gcms.pyopenms_client
+
+Submodules
+----------
+
+gcms.DataReader module
+----------------------
+
+.. automodule:: gcms.DataReader
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+gcms.Filter module
+------------------
+
+.. automodule:: gcms.Filter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+gcms.Integrator module
+----------------------
+
+.. automodule:: gcms.Integrator
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+gcms.PeakFinder module
+----------------------
+
+.. automodule:: gcms.PeakFinder
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+gcms.Processor module
+---------------------
+
+.. automodule:: gcms.Processor
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+gcms.readfile module
+--------------------
+
+.. automodule:: gcms.readfile
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: gcms
+   :members:
+   :show-inheritance:
+   :undoc-members:

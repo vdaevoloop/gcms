@@ -1,0 +1,21 @@
+gcms.plotting package
+=====================
+
+Submodules
+----------
+
+gcms.plotting.ChromPlotting module
+----------------------------------
+
+.. automodule:: gcms.plotting.ChromPlotting
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: gcms.plotting
+   :members:
+   :show-inheritance:
+   :undoc-members:

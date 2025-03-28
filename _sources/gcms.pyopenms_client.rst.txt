@@ -1,0 +1,21 @@
+gcms.pyopenms\_client package
+=============================
+
+Submodules
+----------
+
+gcms.pyopenms\_client.PyOpenMsClient module
+-------------------------------------------
+
+.. automodule:: gcms.pyopenms_client.PyOpenMsClient
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: gcms.pyopenms_client
+   :members:
+   :show-inheritance:
+   :undoc-members:
