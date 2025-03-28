@@ -11,7 +11,9 @@ dependencies = [
   "logging>=0.4.9.6",
   "matplotlib>=3.10.0",
   "pandas>=2.2.3",
+  "pydata-sphinx-theme>=0.16.1",
   "pyopenms==3.3.0",
   "scipy>=1.15.2",
   "seaborn>=0.13.2",
+  "sphinx>=8.2.3",
 ]

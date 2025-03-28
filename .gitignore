@@ -1,7 +1,5 @@
 # Python-generated files
 __pycache__/
-src/gcms/__pycache__/
-src/gcms/*/__pychache__/
 *.py[oc]
 build/
 dist/
