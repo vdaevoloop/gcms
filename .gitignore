@@ -15,3 +15,6 @@ out.csv
 
 # Misc
 .DS_Store
+
+# Shpinx Docs
+_build/
