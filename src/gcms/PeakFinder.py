@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import numpy as np
 import pyopenms as oms
-from pyopenms_client import PyOpenMsClient as omsc
+from .pyopenms_client import PyOpenMsClient as omsc
 import logging
 from icecream import ic
 import scipy
@@ -47,7 +47,7 @@ class PyopenmsChromPeakFinder(ChromPeakFinder):
 
         for k in peak_df.index:
             i = int(peak_df.at[k, "index"])
-            max_intensity = chrom.at[i, "intensity"]  
+            max_intensity = chrom.at[i, "intensity"]
             max_index = i
 
             for j in range(-2, 3):

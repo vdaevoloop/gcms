@@ -4,14 +4,12 @@ from pathlib import Path
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
-from pyopenms_client import PyOpenMsClient as omsc
-from plotting import ChromPlotting as cp
-from gcms import DataReader, Processor, PeakFinder, Integrator
+from src.gcms import DataReader, Processor, PeakFinder, Integrator
+from src.gcms.pyopenms_client import PyOpenMsClient as omsc
+from src.gcms.plotting import ChromPlotting as cp
 import numpy as np
 import scipy
 from scipy.optimize import curve_fit
-import seaborn as sns
-
 
 data = {
     "rt": [

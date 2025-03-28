@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
 import pathlib
-from pyopenms_client import PyOpenMsClient as omsc
+from .pyopenms_client import PyOpenMsClient as omsc
 
 
 class ChromDataReader(ABC):

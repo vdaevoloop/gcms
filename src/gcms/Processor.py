@@ -1,5 +1,5 @@
 from pathlib import Path
-from gcms import DataReader, PeakFinder, Integrator
+from . import DataReader, PeakFinder, Integrator
 import logging
 import pandas as pd
 from icecream import ic
