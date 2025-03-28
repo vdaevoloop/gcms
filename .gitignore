@@ -18,3 +18,4 @@ out.csv
 
 # Shpinx Docs
 _build/
+*.rst

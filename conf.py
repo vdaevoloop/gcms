@@ -1,3 +1,5 @@
+import os
+import sys
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -12,6 +14,9 @@ author = "Viet Duc Do (aevoloop)"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+
+# Set src path
+sys.path.insert(0, os.path.abspath("src"))
 
 extensions = [
     "sphinx.ext.autodoc",
